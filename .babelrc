@@ -1,0 +1,14 @@
+{
+  "presets": ["stage-2"],
+  "plugins": [
+    "transform-runtime",
+    "./src/babelTransformPlugins/namespacedNames",
+    "transform-react-display-name",
+    ["transform-react-jsx", { "pragma": "createElement" }],
+    "./src/babelTransformPlugins/conditionalExpressions",
+    "./src/babelTransformPlugins/classNamesCalls",
+    "transform-es2015-modules-commonjs",
+    "transform-es2015-destructuring",
+    "transform-es2015-parameters",
+  ],
+}

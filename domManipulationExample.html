@@ -1,0 +1,119 @@
+<html>
+  <head>
+    <meta charset="utf-8">
+    <!-- encoding must be set for mocha's special characters to render properly -->
+    <link rel="stylesheet" href="node_modules/mocha/mocha.css" />
+
+  <script src="node_modules/jquery/dist/jquery.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/react/0.14.3/react.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/react/0.14.3/react-dom.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/redux/3.0.5/redux.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/react-redux/4.0.2/react-redux.js"></script>
+
+  <style type="text/css">
+  .bold {
+    font-weight: bold;
+  }
+
+  .highlighted {
+    color: #56FFC1;
+  }
+
+  #dom-manipulation-number-1, #dom-manipulation-number-2 {
+    width: 4em;
+  }
+  </style>
+  </head>
+  <body>
+   
+    <div id="domManipulation"><div id="dom-manipulation-component">
+      <div id="dom-manipulation-container" >
+        <i id="dom-manipulation-bold">click</i>
+        <br />
+        <strong id="dom-manipulation-highlight" >mouse over</strong>
+        <br />
+        <input id="dom-manipulation-text-input" type="text"></input>
+        <span id="dom-manipulation-text"></span>
+        <br />
+        <button id="dom-manipulation-goodbye-button">goodbye</button>
+
+        <div id="dom-manipulation-data-binding" style="">
+    <button id="dom-manipulation-hello-button">hello</button><input id="dom-manipulation-number-1" value="0">+<input id="dom-manipulation-number-2" value="0">=<span id="dom-manipulation-result"></span>
+    <br>
+    
+    <button id="dom-manipulation-side-effect">Side effects are necessary, in the end.</button>
+  </div>
+      </div>
+      <button id="dom-manipulation-hello-button" style="display:none">hello</button>
+    </div></div>
+
+    <!--<div id="mocha"></div>
+    <script src="node_modules/mocha/mocha.js"></script>
+    <script src="node_modules/expect/umd/expect.js"></script>
+    <script>
+      mocha.ui('bdd')
+    </script>-->
+    <script src="dist/jsxquery.js"></script>
+
+
+    <script id="dom-manipulation-script">
+    var container = $('#dom-manipulation-container');
+
+    const DomManipulationExample = {
+      sum(num1, num2) {
+        const parsedNum1 = +num1;
+        const parsedNum2 = +num2;
+        return parsedNum1 + parsedNum2;
+      },
+
+      sideEffect() {
+        window.alert('whoa!')
+      }
+    };
+
+    // TOGGLE BOLD
+    $('#dom-manipulation-bold').on('click', function() {
+      $('#dom-manipulation-component').toggleClass('bold');
+    });
+    
+    // START_HIGHLIGHTED
+    $('#dom-manipulation-highlight').on('mouseenter', function() {
+      $('#dom-manipulation-component').addClass('highlighted');
+    });
+
+    // END HIGHLIGHTED
+    $('#dom-manipulation-highlight').on('mouseleave', function() {
+      $('#dom-manipulation-component').removeClass('highlighted');
+    });
+
+    // SET TEXT
+    $('#dom-manipulation-text-input').on('change input', function() {
+      $('#dom-manipulation-text').text($(this).val())
+    });
+
+    // HIDE CONTAINER
+    $('#dom-manipulation-goodbye-button').on('click', function() {
+      $('#dom-manipulation-container').hide();
+      $('#dom-manipulation-data-binding').show()
+    });
+
+    // SHOW CONTAINER
+    $('#dom-manipulation-hello-button').on('click', function() {
+      $('#dom-manipulation-container').show();
+      $('#dom-manipulation-data-binding').hide()
+    });
+
+    $('#dom-manipulation-side-effect').on('click', function() {
+      DomManipulationExample.sideEffect();
+    });
+
+    $('#dom-manipulation-number-1').on('change input', function() {
+      $('#dom-manipulation-result').text(DomManipulationExample.sum($('#dom-manipulation-number-1').val(), $('#dom-manipulation-number-2').val()));
+    });
+
+    $('#dom-manipulation-number-2').on('change input', function() {
+      $('#dom-manipulation-result').text(DomManipulationExample.sum($('#dom-manipulation-number-1').val(), $('#dom-manipulation-number-2').val()));
+    });
+    </script>
+  </body>
+</html>

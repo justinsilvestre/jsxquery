@@ -1,0 +1,234 @@
+<html>
+  <head>
+    <meta charset="utf-8">
+    <!-- encoding must be set for mocha's special characters to render properly -->
+    <link rel="stylesheet" href="node_modules/mocha/mocha.css" />
+
+  <script src="node_modules/jquery/dist/jquery.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/react/0.14.3/react.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/react/0.14.3/react-dom.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/redux/3.0.5/redux.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/react-redux/4.0.2/react-redux.js"></script>
+  
+  <script src="dist/jsxquery.js"></script>
+  <style type="text/css">
+
+  .blue { color: #338CDF; }
+  .yellow { color: #FFE027; }
+  #arrow-icon:after { content: '▶'; }
+  #arrow-icon.cart-showing:after { content: '▼'; }
+
+  .invalid input {
+    background-color: pink;
+  }
+
+  body {
+    margin-left: 43%;
+    font-size: 16px;
+  }
+
+  #editor {
+    width: 40%;
+    box-sizing: border-box;
+    position: absolute;
+    left: 0;
+  }
+
+  #transformed {
+    background: #183D44;
+  }
+  button#show-transformed {
+    float:right;
+  }
+  #code, #pre-render textarea {
+    background: #2a3132;
+  }
+  #code, #transformed {
+    width: 100%;
+    min-height: 500px;
+
+    font-family: monospace;
+    color: #f7fcf0;
+  }
+
+  #pre-render {
+    padding-top: 15%;
+  }
+  #pre-render > * {
+    display:block;
+    width: 80%;
+    margin: initial auto;
+  }
+  #pre-render p {
+    text-align: center;
+  }
+  #pre-render textarea {
+    min-height: 200px;
+
+    color: #f7fcf0;
+    font-family: monospace;
+
+  }
+  #pre-render button {
+    font-size: 1em;
+  }
+
+  #view {
+    padding: 2em;
+  }
+
+  </style>
+  </head>
+  <body>
+  
+  <nav>
+  <b>Open up your console and go at it:</b>
+  <a href="#" onclick="$.get('examples/DomManipulation.jsx', function(r) { $('#code').val(r) })">Basic DOM manipulation</a> - 
+  <a href="#" onclick="$.get('examples/Calculator.jsx', function(r) { $('#code').val(r) })">Calculator</a> - 
+  <a href="#" onclick="$.get('examples/FormValidation.jsx', function(r) { $('#code').val(r) })">Form validation</a>
+  </nav>
+
+    <section id="editor">
+      <textarea id="code">export default class Demo extends Component {
+  static get defaultProps() {
+    return {};
+  }      
+
+  static get actionNames() {
+    return [];
+  }
+
+  render() {
+    return <div>Enter some JSX!</div>;
+  }
+
+}</textarea>
+      <textarea id="transformed" disabled style="display: none"></textarea>
+      <button id="get-jquery" value="get JSTL/jQuery">get jQuery Component</button>
+      <button id="get-redux" value="get React/Redux">get Redux Component (after jQuery)</button>
+      <button id="show-transformed">show transformed code</button>
+    </section>
+
+    <div id="view">
+    </div>
+    <div id="pre-render" style="display: none;">
+      <p>Your component is now available!</p>
+      <p>Render it to the DOM like this:<br></p>
+      <textarea id="render-code"></textarea>
+      <button id="render-component" value="render Component">Render your Component</button>
+    </div>
+    <script>
+  var Demo = {
+    reduxRenderCode() {
+      var actionsCode = jsxQuery.reactTransform(window.demoComponent.redux().actions).code;
+      eval(actionsCode)
+      window.updateComponent = window.exports.updateComponent;
+
+      window.Component = React.Component;
+      window.classNames = jsxQuery.classNamesOriginal;
+
+      transformedCode = jsxQuery.reactTransform($('#code').val()).code;
+      eval(transformedCode);
+
+      var reduxRenderCode = `
+var generatedReduxSetupCode = demoComponent.redux().setup;
+window.generatedReduxSetupCode = generatedReduxSetupCode;
+var reactComponent = window.exports.default;
+window.reactComponent = reactComponent;
+
+var setupRedux = eval(generatedReduxSetupCode);
+
+
+ReactDOM.render(setupRedux(reactComponent), document.getElementById('view'));
+
+// play around some in the console
+Object.assign(window, { reactComponent, setupRedux, generatedReduxSetupCode });
+console.log(generatedReduxSetupCode);
+`;
+      return reduxRenderCode;
+    },
+
+    jQueryRenderCode() {
+      Component = jsxQuery.Component;
+      classNames = jsxQuery.classNames;
+
+      transformedCode = jsxQuery.transform($('#code').val()).code;
+      eval(transformedCode);
+
+      var jQueryRenderCode = `var DemoComponent = window.exports.default;
+var element = <DemoComponent />;
+var markup = element.markup();
+var demoComponent = element.component;
+
+$('#view').html(markup);
+
+var generatedJQuery = demoComponent.jQuery();
+eval(generatedJQuery);
+
+// play around some in the console
+Object.assign(window, { element, markup, demoComponent, generatedJQuery });
+console.log(generatedJQuery);
+`;
+      return jQueryRenderCode;
+    },
+
+    renderComponent() {
+        window.bindActionCreators = Redux.bindActionCreators;
+        window.actionsHash = window.exports.actionsHash;
+
+        var transformedRenderCode = jsxQuery.transform($('#render-code').val()).code;
+        eval(transformedRenderCode);
+    },
+  }
+
+
+
+
+    var Component, classNames, component;
+    var transformedCode = '';
+    window.exports = { };
+
+
+    $(function() {
+      $('nav a').on('click', function() {
+        $('#code').show();
+        $('#transformed').hide();
+      })
+
+      $('#get-jquery').on('click', function() {
+        $('#code').show();
+        $('#transformed').hide();
+
+        $('#view').hide();
+        $('#pre-render').show();
+
+        $('#render-code').val(Demo.jQueryRenderCode());
+      });
+
+      $('#get-redux').on('click', function() {
+        $('#code').show();
+        $('#transformed').hide();
+
+        $('#view').hide();
+        $('#pre-render').show();
+
+        $('#render-code').val(Demo.reduxRenderCode());
+      });
+
+      $('#show-transformed').on('click', function() {
+        $('#transformed').val(transformedCode);
+
+        $('#code').hide()
+        $('#transformed').show()
+      })
+
+      $('#render-component').on('click', function() {
+        $('#view').show();
+        $('#pre-render').hide();
+
+        Demo.renderComponent();
+      });
+    });
+    </script>
+  </body>
+</html>
