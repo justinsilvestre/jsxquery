@@ -32,7 +32,7 @@ export default class Prop {
       parent,
       initialName,
       value,
-      _wasLoaded: false,
+      _wasLoaded,
       isMutable: Prop.prototype.isMutable, // should this be bound?
       wasLoaded: Prop.prototype.wasLoaded,
       map: Prop.prototype.map,

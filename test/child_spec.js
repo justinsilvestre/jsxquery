@@ -116,10 +116,11 @@ describe('Child', () => {
     it('renders either consequent non-element or alternate non-element using JSTL logic'
       + ' if test condition is determined at server render time');
 
-   /* it('renders either consequent element or alternate element using JSTL logic'
+    it('renders either consequent element or alternate element using JSTL logic'
       + ' if test condition is determined at server render time', () => {
       const jstlTest = conditionalElementChildTemplate(true, false);
       const markup = jstlTest.render();
+
       const choose = '<c:choose>';
       const when = '<c:when test="${true}">';
       const otherwise = '<c:otherwise>';
@@ -128,7 +129,7 @@ describe('Child', () => {
       expect(markup.slice(markup.indexOf(choose))).toContain('when');
       expect(markup.slice(markup.indexOf(when))).toContain('otherwise', jstlTest.value.consequent.markup());
       expect(markup.slice(markup.indexOf(otherwise))).toContain(jstlTest.value.alternate.markup());
-    });*/
+    });
 
     it('shows either consequent element or alternate element using display styles while rendering both'
       + ' if test condition is part of component\'s mutable state', () => {
@@ -137,14 +138,14 @@ describe('Child', () => {
       expect(child.render()).toContain('strong style="display: none');
     });
 
-/*    it('shows either consequent element or alternate element using display styles determined using JSTL logic '
+    it('shows either consequent element or alternate element using display styles determined using JSTL logic '
       + 'if test condition is both determined at server render time '
       + 'and part of component\'s mutable state', () => {
       const child = conditionalElementChildTemplate(true, true);
 
-      expect(child.render()).toContain('strong<c:if test="${true}"> style="display: none;"');
-      expect(child.render()).toContain('span<c:if test="${!(true)}"> style="display: none;"')
-    });*/
+      expect(child.render()).toContain('strong ${true ? "style=\\"display: none;\\"" : ""}');
+      expect(child.render()).toContain('span ${true ? "" : "style=\\"display: none;\\""}');
+    });
 
     it('accepts function component as consequent', () => {
       const FunctionComponent = () => span;

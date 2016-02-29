@@ -92,17 +92,20 @@ export default class Attribute {
 
         return propOrCall ?
           (propOrCall.wasLoaded()
-            ? `<c:if test="$\{${propOrCall.initialValue()}}">${className}</c:if>`
+            ? `$\{${propOrCall.initialValue()} ? '${className}' : ''}`
             : (propOrCall.initialValue() && className))
           : (classObj[className] && className);
       }).filter(c => c).join(' ');
     }
 
-    if (this.isContainer())
+    if (this.isContainer()) 
       return this.value.initialValue();
 
     if (this.isConditional())
       return this.value.render(null);
+
+    if (this.value === false)
+      return '';
 
     return this.value;
   }
@@ -119,10 +122,10 @@ export default class Attribute {
         return new Attribute(this.name, test.initialValue() ? consequent : alternate).render();
 
       if (propsWereLoaded) {
-        return cChoose(test.initialValue(),
-          new Attribute(this.name, consequent).render(),
-          new Attribute(this.name, alternate).render()
-        ).markup();
+        const consequentDisplay = JSON.stringify(new Attribute(this.name, consequent).render().trim());
+        const alternateDisplay = JSON.stringify(new Attribute(this.name, alternate).render().trim());
+
+        return ` $\{${test.initialValue()} ? ${consequentDisplay} : ${alternateDisplay}}`;
       }
     } else {
       return this.notToBeRendered() ? '' :

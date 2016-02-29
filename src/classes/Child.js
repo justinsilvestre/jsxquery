@@ -77,7 +77,7 @@ export default class Child {
     if (this.isArray())
       return this.value.map(e => e.markup(indents)).join('\n');
 
-    if (this.isContainer()){
+    if (this.isContainer()) {
       return this.isConditional() ? this.value.render(indents) : markupFromValue(this.value.initialValue(), indents);
     }
 

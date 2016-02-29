@@ -60000,6 +60000,10 @@ var jsxQuery =
 	  value: true
 	});
 	
+	var _stringify = __webpack_require__(/*! babel-runtime/core-js/json/stringify */ 392);
+	
+	var _stringify2 = _interopRequireDefault(_stringify);
+	
 	var _defineProperty2 = __webpack_require__(/*! babel-runtime/helpers/defineProperty */ 382);
 	
 	var _defineProperty3 = _interopRequireDefault(_defineProperty2);
@@ -60149,7 +60153,7 @@ var jsxQuery =
 	            v: (0, _keys2.default)(classObj).map(function (className) {
 	              var propOrCall = _Prop2.default.isProp(classObj[className]) || _PropCall2.default.isPropCall(classObj[className]) ? classObj[className] : null;
 	
-	              return propOrCall ? propOrCall.wasLoaded() ? '<c:if test="${' + propOrCall.initialValue() + '}">' + className + '</c:if>' : propOrCall.initialValue() && className : classObj[className] && className;
+	              return propOrCall ? propOrCall.wasLoaded() ? '${' + propOrCall.initialValue() + ' ? \'' + className + '\' : \'\'}' : propOrCall.initialValue() && className : classObj[className] && className;
 	            }).filter(function (c) {
 	              return c;
 	            }).join(' ')
@@ -60162,6 +60166,8 @@ var jsxQuery =
 	      if (this.isContainer()) return this.value.initialValue();
 	
 	      if (this.isConditional()) return this.value.render(null);
+	
+	      if (this.value === false) return '';
 	
 	      return this.value;
 	    }
@@ -60181,7 +60187,10 @@ var jsxQuery =
 	        if (!propsWereLoaded) return new Attribute(this.name, test.initialValue() ? consequent : alternate).render();
 	
 	        if (propsWereLoaded) {
-	          return (0, _jstlHelpers.cChoose)(test.initialValue(), new Attribute(this.name, consequent).render(), new Attribute(this.name, alternate).render()).markup();
+	          var consequentDisplay = (0, _stringify2.default)(new Attribute(this.name, consequent).render().trim());
+	          var alternateDisplay = (0, _stringify2.default)(new Attribute(this.name, alternate).render().trim());
+	
+	          return ' ${' + test.initialValue() + ' ? ' + consequentDisplay + ' : ' + alternateDisplay + '}';
 	        }
 	      } else {
 	        return this.notToBeRendered() ? '' : this.displayValue() === true ? ' ' + this.displayName() : ' ' + this.displayName() + '="' + this.displayValue() + '"';
@@ -60474,7 +60483,7 @@ var jsxQuery =
 	        // THIS IS SLOPPY. ANY NEWLINES IN A TEMPLATE STRING WILL BE COUNTED AS WELL.
 	        //
 	        //
-	      }).join(',\n') + '\n}';
+	      }).join(',\n') + '\n};';
 	
 	      var jQueryChange = function jQueryChange(actionCall, targetId) {
 	        var actionType = actionCall.actionType;
@@ -61259,13 +61268,13 @@ var jsxQuery =
 	        return toggleCriterion === '' ? '$(\'#' + elementId + '\').toggleClass(\'' + obj.className + '\');' : '$(\'#' + elementId + '\').toggleClass(\'' + obj.className + '\', ' + toggleCriterionBool + ');';
 	
 	      case 'show':
-	        return typeof toggleCriterion === 'boolean' ? '$(\'#' + elementId + '\').' + (toggleCriterion ? 'show' : 'hide') + '()' : '$(\'#' + elementId + '\').toggle(' + toggleCriterion + ');';
+	        return typeof toggleCriterion === 'boolean' ? '$(\'#' + elementId + '\').' + (toggleCriterion ? 'show' : 'hide') + '();' : '$(\'#' + elementId + '\').toggle(' + toggleCriterion + ');';
 	
 	      case 'hide':
-	        return typeof toggleCriterion === 'boolean' ? '$(\'#' + elementId + '\').' + (toggleCriterion ? 'hide' : 'show') + '()' : '$(\'#' + elementId + '\').toggle(!(' + toggleCriterion + '));';
+	        return typeof toggleCriterion === 'boolean' ? '$(\'#' + elementId + '\').' + (toggleCriterion ? 'hide' : 'show') + '();' : '$(\'#' + elementId + '\').toggle(!(' + toggleCriterion + '));';
 	
 	      case 'attr':
-	        return '$(\'#' + elementId + '\').attr(\'' + obj.attributeName + '\', ' + newValue + ')';
+	        return '$(\'#' + elementId + '\').attr(\'' + obj.attributeName + '\', ' + newValue + ');';
 	    }
 	  }).join('\n\t');
 	}

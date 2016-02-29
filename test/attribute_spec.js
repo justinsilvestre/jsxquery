@@ -116,12 +116,12 @@ describe('Attribute', () => {
       expect(compositeClassNameAttribute.render()).toNotContain('dontShow');
     });
 
-/*    it('wraps class names linked to component\'s loaded props in JSTL logic', () => {
+    it('wraps class names linked to component\'s loaded props in JSTL logic', () => {
       const conditionalClassNameAttribute = new Attribute('className',
         classNames({ thingy: true, otherThingy: new Prop({ mutableProps: [] }, 'thisIsAPropName', false, true) }));
 
-      expect(conditionalClassNameAttribute.render()).toEqual(' class="thingy <c:if test="${false}">otherThingy</c:if>"');
-    });*/
+      expect(conditionalClassNameAttribute.render()).toEqual(' class="thingy ${false ? \'otherThingy\' : \'\'}"');
+    });
 
     it('wraps attribute in JSTL logic if it is conditional');
 

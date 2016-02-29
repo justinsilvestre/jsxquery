@@ -1,4 +1,4 @@
-import jsxQuery, { Component, classNames, createElement } from '../src/jsxquery';
+// import jsxQuery, { Component, classNames, createElement } from '../src/jsxquery';
 // const jsxQuery = require('jsxquery');
 // const { Component, classNames } = jsxQuery;
 // import React, { Component } from 'react';
