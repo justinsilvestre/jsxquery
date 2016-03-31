@@ -49,12 +49,8 @@ export default class Attribute {
     return this.value && this.name === 'style' && typeof this.value === 'object';
   }
 
-  isInnerHTML() {
-    return this.name === 'dangerouslySetInnerHTML';
-  }
-
   notToBeRendered() {
-    return this.value === false || this.isContainer() && this.value.initialValue() === false || this.isEventHandler() || this.isInnerHTML();
+    return this.value === false || this.isContainer() && this.value.initialValue() === false || this.isEventHandler();
   }
 
   classNamesHash() {

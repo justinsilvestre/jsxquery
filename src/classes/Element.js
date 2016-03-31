@@ -45,7 +45,10 @@ export default class Element {
     this.tagName = element.tagName || tagName;
 
     const attributeNames = Object.keys(propsOrAttributes || {});
-    this.attributes = element.attributes || attributeNames.map(name => new Attribute(name, propsOrAttributes[name]));
+    this.attributes = element.attributes
+      || attributeNames
+        .filter(n => n !== 'dangerouslySetInnerHTML')
+        .map(name => new Attribute(name, propsOrAttributes[name]));
 
     const HTMLAttribute = propsOrAttributes && propsOrAttributes.dangerouslySetInnerHTML;
     const rawTextChildValue = HTMLAttribute

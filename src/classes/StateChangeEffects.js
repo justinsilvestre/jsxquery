@@ -1,16 +1,16 @@
 import Prop from './Prop';
 import PropCall from './PropCall';
-import EventArgument, { mockEvent } from './EventArgument';
+import Event, { mockEvent } from './Event';
 import pickBy from 'lodash.pickby';
 import Element from './Element';
 
 export function jQueryArgumentFrom(arg) {
-  if (arg === mockEvent || arg instanceof EventArgument
+  if (arg === mockEvent || arg instanceof Event
       || Prop.isProp(arg)
       || PropCall.isPropCall(arg))
-    return arg.toJQueryArgument();
+    return arg.toJQueryCode();
 
-  return JSON.stringify(arg);
+  return typeof arg === 'boolean' ? arg : JSON.stringify(arg);
 }
 
 export default class StateChangeEffects {
@@ -43,7 +43,7 @@ export default class StateChangeEffects {
 
   extractDynamicClassNamesFrom(e) {
     const toggleCriterion = this.actionType === 'toggle' ? ''
-      : (typeof this.args[0] === 'boolean' ? this.args[0] : jQueryArgumentFrom(this.args[0]));
+      : jQueryArgumentFrom(this.args[0]);
     const { mutatedProp } = this;
     const relevantClassNamesHash = pickBy(e.classNamesHash(), v => mutatedProp.concerns(v));
 
@@ -64,7 +64,7 @@ export default class StateChangeEffects {
       method: c.isRaw() ? 'html' : 'text',
       // newValue: jQueryArgumentFrom(c.value),
       newValue: PropCall.isPropCall(c.value)
-          ? c.value.toJQueryArgument()
+          ? c.value.toJQueryCode()
           : jQueryArgumentFrom(this.args[0]),
     }));
   }
@@ -78,7 +78,7 @@ export default class StateChangeEffects {
     return [consequent, alternate].filter(o => Element.isElement(o)).map(e => ({
       elementId: e.getIdForProp(mutatedProp.initialName, 'display styles'),
       method: e === consequent ? 'show' : 'hide',
-      toggleCriterion: PropCall.isPropCall(test) ? test.toJQueryArgument()
+      toggleCriterion: PropCall.isPropCall(test) ? test.toJQueryCode()
         : (typeof this.args[0] === 'boolean' ? this.args[0] : jQueryArgumentFrom(this.args[0])),
     }));
   }
@@ -96,7 +96,7 @@ export default class StateChangeEffects {
     return {
       elementId: e.getIdForProp(mutatedProp.initialName, 'conditional text'),
       method: relevantConditionalChild.isRaw() ? 'html' : 'text',
-      newValue: test.toJQueryArgument() + ' ? ' + jQueryArgumentFrom(consequent) + ' : ' + jQueryArgumentFrom(alternate),
+      newValue: test.toJQueryCode() + ' ? ' + jQueryArgumentFrom(consequent) + ' : ' + jQueryArgumentFrom(alternate),
     };
   }
 
@@ -110,7 +110,7 @@ export default class StateChangeEffects {
         elementId: e.getIdForProp(mutatedProp.initialName, 'value attribute'),
         method: 'val',
         newValue: PropCall.isPropCall(valueAttribute.value)
-          ? valueAttribute.value.toJQueryArgument()
+          ? valueAttribute.value.toJQueryCode()
           : jQueryArgumentFrom(this.args[0]),
       };
     return v && v.elementId !== this.targetId ? v : [];
@@ -127,7 +127,7 @@ export default class StateChangeEffects {
         // newValue: jQueryArgumentFrom(args[0]),
         attributeName: attribute.name,
         newValue: PropCall.isPropCall(attribute.value)
-          ? attribute.value.toJQueryArgument()
+          ? attribute.value.toJQueryCode()
           : (typeof this.args[0] !== 'boolean' && jQueryArgumentFrom(this.args[0])),
       })
     , []);

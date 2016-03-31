@@ -85,12 +85,6 @@ describe('Attribute', () => {
       expect(eventHandlerAttribute.render()).toEqual('');
     });
 
-    it('returns an empty string for dangerouslySetInnerHTML', () => {
-      const innerHTMLAttribute = new Attribute('dangerouslySetInnerHTML', { __html: '&amp;lifi!!' });
-
-      expect(innerHTMLAttribute.render()).toEqual('')
-    })
-
     it('renders an attribute with name "className" as "class"', () => {
       const classNameAttribute = new Attribute('className', 'thingy');
 

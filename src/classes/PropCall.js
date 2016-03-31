@@ -7,7 +7,7 @@ export default class PropCall {
     this.args = args;
   }
 
-  toJQueryArgument() {
+  toJQueryCode() {
     const { prop, args } = this;
     const namespaceName = this.prop.parent.namespaceName();
 

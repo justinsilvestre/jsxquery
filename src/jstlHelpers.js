@@ -9,7 +9,7 @@ export function cChoose(testValue, consequent, alternate) {
     + '}';
 
   return loneOption ?
-    (<c:if test={testInBrackets} dangerouslySetInnerHTML={{__html: loneOption}}>
+    (<c:if test={testInBrackets} dangerouslySetInnerHTML={{ __html: loneOption }}>
     </c:if>)
     :
     (<c:choose>

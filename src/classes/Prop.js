@@ -91,7 +91,7 @@ export default class Prop {
 
 // need to get value from presence/absence of element/class, or child content. (conditional stuff.)
 
-  toJQueryArgument() {
+  toJQueryCode() {
     const { element, method, argument } = this.valueSource();
     const elementId = element.getAttribute('id').displayValue();
     const argumentString = argument ? JSON.stringify(argument) : '';
