@@ -31,7 +31,7 @@ export default function jQueryCall(dependenciesOnProp) {
         : `$('#${elementId}').toggle(!(${toggleCriterion}));`;
 
     case ('attr'):
-      return `$('#${elementId}').attr('${obj.attributeName}', ${newValue});`;
+      return `$('#${elementId}').prop('${obj.attributeName}', ${newValue});`;
     }
   }).join('\n\t');
 }

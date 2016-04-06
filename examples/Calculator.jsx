@@ -24,16 +24,18 @@ export default class Calculator extends Component {
   render() {
     const { operand1, operand2, operation, result } = this.props;
     const { setOperand1, setOperand2, setOperation } = this.actions || bindActionCreators(actionsHash, this.props.dispatch);
+    const textFieldStyles = { width: '4em' };
+    
     return (<div id="calculator">
       <input id="operand1"
              value={operand1}
              onChange={e => setOperand1(e.target.value)}
-             style={{ width: '4em' }} />
+             style={textFieldStyles} />
       <span id="operation">{operation}</span>
       <input id="operand2"
              value={operand2}
              onChange={e => setOperand2(e.target.value)}
-             style={{ width: '4em' }} />
+             style={textFieldStyles} />
       {' = '}
       <span id="result">{result(operation, operand1, operand2)}</span>
       <br />

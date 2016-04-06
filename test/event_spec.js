@@ -1,5 +1,5 @@
 import expect from 'expect';
-import Event from '../src/classes/Event'
+import Event from '../src/classes/Event';
 
 describe('Event', () => {
   it('tracks calls to event methods', () => {
