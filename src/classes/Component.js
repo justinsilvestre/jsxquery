@@ -16,7 +16,7 @@ import Actions from './Actions';
 import StateChangeEffects from './StateChangeEffects';
 import reduxActionsTemplate from '../reduxTemplates/actions';
 import reduxSetupTemplate from '../reduxTemplates/setup';
-import { mockEvent } from './Event';
+import Event from './Event';
 import jQueryCall from '../jQueryCall';
 
 export default class Component {
@@ -74,7 +74,7 @@ export default class Component {
     const eventListeners = this.eventListeners().map(eventListener => {
       const { eventName, targetId, handler } = eventListener;
       this.callsFromHandler = [];
-      handler(mockEvent(this.callsFromHandler));
+      handler(new Event(this.callsFromHandler));
       // should have called actions AND called props.
       // if a prop is passed to an action, jquery-pass in the value taken from the appropriate DOM node.
       // if another value is passed to an action, save its value and stringify it, and jquery-pass that.

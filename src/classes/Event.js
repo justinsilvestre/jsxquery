@@ -1,37 +1,47 @@
+import Proxy from 'harmony-proxy';
+
+const JQUERY_EVENT_PROPERTY_EQUIVALENTS = {
+  'target': '$(this)',
+  'target.value': '$(this).val()',
+};
+
 export default class Event {
-  constructor(...path) {
-    this.path = path;
+  constructor(callTracker, ...chain) {
+    this.callTracker = callTracker;
+    this.chain = chain;
+    this.__isEvent__ = true;
+
+    const fn = () => {
+      const call = Object.assign(new Event(callTracker, ...chain), {
+        toJQueryCode: () => this.toJQueryCode() + '()',
+      });
+
+      callTracker.push(call);
+      return call;
+    };
+
+    Object.assign(fn, this, {
+      toJQueryCode: this.toJQueryCode.bind(this),
+    });
+
+    return new Proxy(fn, {
+      get: Event.getHandler,
+    });
+  }
+
+  static getHandler(target, name) {
+    return name in target
+      ? target[name]
+      : new Event(target.callTracker, ...target.chain.concat(name));
+  }
+
+  static isEvent(val) {
+    return typeof val === 'function' && '__isEvent__' in val;
   }
 
   toJQueryCode() {
-    if (typeof this.path === 'undefined')
-      return 'event';
-
-    const joinedPath = this.path.join('.');
-    return ({
-      'target.value': '$(this).val()',
-      'preventDefault()': 'event.preventDefault()',
-      'stopPropagation()': 'event.stopPropagation()',
-    }[joinedPath]) || (() => {
-      throw new Error(`Acceptance of 'event.${joinedPath}' as an action argument has not been implemented yet.`);
-    })();
+    const { chain } = this;
+    const joinedPropertyChain = chain.join('.');
+    return JQUERY_EVENT_PROPERTY_EQUIVALENTS[joinedPropertyChain] || ['event', ...chain].join('.');
   }
 }
-
-const e = (...path) => new Event(...path);
-
-export const mockEvent = function(accumulator) {
-  return {
-    target: {
-      value: e('target', 'value'),
-    },
-
-    preventDefault() {
-      accumulator.push(e('preventDefault()'));
-    },
-
-    stopPropagation() {
-      accumulator.push(e('stopPropagation()'));
-    },
-  };
-};

@@ -1,11 +1,11 @@
 import Prop from './Prop';
 import PropCall from './PropCall';
-import Event, { mockEvent } from './Event';
+import Event from './Event';
 import pickBy from 'lodash.pickby';
 import Element from './Element';
 
 export function jQueryArgumentFrom(arg) {
-  if (arg === mockEvent || arg instanceof Event
+  if (Event.isEvent(arg)
       || Prop.isProp(arg)
       || PropCall.isPropCall(arg))
     return arg.toJQueryCode();

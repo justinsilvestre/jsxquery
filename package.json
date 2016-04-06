@@ -4,7 +4,7 @@
   "description": "Build UI components with declarative code that compiles to HTML and jQuery",
   "main": "index.js",
   "scripts": {
-    "test": "mocha --es_staging --harmony_destructuring --compilers js:babel-core/register --recursive",
+    "test": "mocha --es_staging --harmony_destructuring --harmony_proxies --compilers js:babel-core/register --recursive",
     "test:nocache": "BABEL_DISABLE_CACHE=1 npm test --",
     "test:watch": "npm test -- --watch",
     "deploy": "NODE_ENV=production webpack -p --config webpack.production.config.js"
@@ -37,6 +37,7 @@
     "babel-preset-stage-2": "^6.5.0",
     "babel-runtime": "^6.3.13",
     "classnames": "^2.2.1",
+    "harmony-proxy": "^1.0.0",
     "jquery": "^2.1.4",
     "lodash": "^3.10.1"
   }
