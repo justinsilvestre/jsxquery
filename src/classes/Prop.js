@@ -95,7 +95,7 @@ export default class Prop {
     const { element, method, argument, equalityCheck } = this.valueSource();
     const elementId = element.getAttribute('id').displayValue();
     const argumentString = argument ? JSON.stringify(argument) : '';
-    return `$('#${elementId}').${method}(${argumentString})${equalityCheck}`;
+    return `$('#${elementId}').${method}(${argumentString})${equalityCheck || ''}`;
   }
 
   initialValue() {
