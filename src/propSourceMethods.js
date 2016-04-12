@@ -4,12 +4,12 @@ import ConditionalValue from './classes/ConditionalValue';
 
 const dependsOnProp = (val, prop) => val === prop || ConditionalValue.isConditionalValue(val) && val.test === prop;
 const containerChildAsProp = (el, prop) => el.children.find(c => c.isContainer() && dependsOnProp(c.value, prop));
-const childWithTestConditionProp = (el, prop) =>
-  el.children.find(c => c.isConditional() && c.value.test === prop);
-const valueAsProp = (el, prop) => values(el.attributes).find(a => dependsOnProp(a.value, prop) && a.name === 'value');
 const attributeAsProp = (el, prop) => values(el.attributes).find(a => dependsOnProp(a.value, prop));
 const dynamicClassFromProp = (el, prop) => findKey(el.classNamesHash(), c => dependsOnProp(c, prop));
-const equalityCheckAgainst = val => {
+const childWithTestConditionProp = (el, prop) =>
+  el.children.find(c => c.isConditional() && c.value.test === prop);
+
+function equalityCheckAgainst(val) {
   if (ConditionalValue.isConditionalValue(val)) {
     const { consequent, alternate } = val;
     return consequent
@@ -17,7 +17,7 @@ const equalityCheckAgainst = val => {
       : ' !== ' + JSON.stringify(alternate);
   }
   return '';
-};
+}
 
 export default {
   textChild(element, prop) {
@@ -33,18 +33,9 @@ export default {
     const attribute = attributeAsProp(element, prop);
     return attribute && {
       element,
-      method: 'prop',
+      method: attribute.name === 'value' ? 'val' : 'prop',
       argument: attribute.displayName(),
       equalityCheck: equalityCheckAgainst(attribute.value),
-    };
-  },
-
-  value(element, prop) {
-    const valueAttribute = valueAsProp(element, prop);
-    return valueAttribute && {
-      element,
-      method: 'val',
-      equalityCheck: equalityCheckAgainst(valueAttribute.value),
     };
   },
 
