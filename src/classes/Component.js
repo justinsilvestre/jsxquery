@@ -9,7 +9,7 @@
 
 // CLASSNAMESHASH SHOULD TAKE INTO ACCOUNT CONDIDTIONAL CLASSNAME ATTR
 
-import { uniq, isFunction, values, findKey, contains } from 'lodash';
+import { uniq, isFunction, values, contains } from 'lodash';
 import * as EVENTS from '../supportedEvents';
 import Prop from './Prop';
 import Actions from './Actions';
@@ -18,6 +18,7 @@ import reduxActionsTemplate from '../reduxTemplates/actions';
 import reduxSetupTemplate from '../reduxTemplates/setup';
 import Event from './Event';
 import jQueryCall from '../jQueryCall';
+import PropValueSource from './PropValueSource';
 
 export default class Component {
   constructor(loadedState) {
@@ -113,7 +114,7 @@ export default class Component {
   redux() {
     return {
       actions: reduxActionsTemplate(this.actions),
-      setup: reduxSetupTemplate(Object.keys(this.props))
+      setup: reduxSetupTemplate(Object.keys(this.props)),
     };
   }
 
@@ -129,30 +130,8 @@ export default class Component {
     if (!this._propValuesWithSources) {
       this._propValuesWithSources = this.mutableProps.map(propName => {
         const prop = this.props[propName];
-
-        var sourceData;
-        this.element().each(e => {
-          if (sourceData)
-            return;
-
-          const containerChild = e.children.find(c => c.isContainer() && c.value === prop);
-          const valueAttribute = values(e.attributes).find(a => a.value === prop && a.name === 'value');
-          const nonValueAttribute = values(e.attributes).find(a => a.value === prop && a.name !== 'value');
-          const classNameProp = values(e.classNamesHash()).find(c => c === prop);
-
-          if (containerChild)
-            sourceData = { element: e, method: containerChild.isRaw() ? 'html' : 'text' };
-          else if (valueAttribute)
-            sourceData = { element: e, method: 'val' };
-          else if (nonValueAttribute)
-            sourceData = { element: e, method: 'attr', argument: values(e.attributes).find(a => a.value === prop).displayName() };
-          else if (classNameProp)
-            sourceData = { element: e, method: 'hasClass', argument: findKey(e.classNamesHash(), c => c === prop) };
-          else if (e.children.find(c => c.isConditional() && c.value.test === prop))
-            sourceData = { element: e, method: 'ternary' };
-        });
-
-        return sourceData && Object.assign(sourceData, { propName, prop });
+        const elements = this.element().elementNodes();
+        return new PropValueSource(elements, prop);
       });
     }
 

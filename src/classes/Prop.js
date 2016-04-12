@@ -92,10 +92,10 @@ export default class Prop {
 // need to get value from presence/absence of element/class, or child content. (conditional stuff.)
 
   toJQueryCode() {
-    const { element, method, argument } = this.valueSource();
+    const { element, method, argument, equalityCheck } = this.valueSource();
     const elementId = element.getAttribute('id').displayValue();
     const argumentString = argument ? JSON.stringify(argument) : '';
-    return `$('#${elementId}').${method}(${argumentString})`;
+    return `$('#${elementId}').${method}(${argumentString})${equalityCheck}`;
   }
 
   initialValue() {

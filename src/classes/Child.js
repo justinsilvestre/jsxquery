@@ -87,12 +87,12 @@ export default class Child {
     return markupFromValue(this.value, indents);
   }
 
-  eachElement(callback) {
-    if (Element.isElement(this.value))
-      return this.value.each(callback);
-
+  elementNodes() {
     const { consequent, alternate } = this.value || {};
-    Element.isElement(consequent) && consequent.each(callback);
-    Element.isElement(alternate) && alternate.each(callback);
+    return [
+      Element.isElement(this.value) && this.value.elementNodes(),
+      Element.isElement(consequent) && consequent.elementNodes(),
+      Element.isElement(alternate) && alternate.elementNodes(),
+    ].filter(e => e).reduce((a,b) => a.concat(b), []);
   }
 }

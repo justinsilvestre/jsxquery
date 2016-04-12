@@ -1,4 +1,5 @@
 import { isEmpty, contains, isFunction, intersection } from 'lodash';
+import flatMap from 'lodash.flatmap';
 import Child from './Child';
 import Attribute from './Attribute';
 import EventListener from './EventListener';
@@ -121,8 +122,11 @@ export default class Element {
   }
 
   each(enter) {
-    enter(this);
-    this.children.forEach(childElement => childElement.eachElement(enter));
+    this.elementNodes().forEach(node => enter(node))
+  }
+
+  elementNodes() {
+    return [this, ...flatMap(this.children, childElement => childElement.elementNodes())];
   }
 
   getAttribute(attributeName) {
