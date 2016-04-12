@@ -1,19 +1,15 @@
 // two components of the same class in an element means ids must be changed
 
-// IF TERNARY TEST CONDITION IS NOT A PROP/PROPFUNCTION CALL THEN WE JUST RENDER THAT CHILD/ATTR WITH THE RESULT.
-
 // CUSTOM ATTRIBUTES SHOULD HAVE A DATA PREFIX. OTHERWISE ONLY ACCEPT NORMAL OR ARIA- ATTRIBUTES.
 
 // static get defaultProps should fall back on getDefaultProps() for ES5/createClass
 // static get actionNames should fall back on getActionsNames()
 
-// CLASSNAMESHASH SHOULD TAKE INTO ACCOUNT CONDIDTIONAL CLASSNAME ATTR
-
-import { uniq, isFunction, values, contains } from 'lodash';
+import { uniq, isFunction, values } from 'lodash';
 import * as EVENTS from '../supportedEvents';
 import Prop from './Prop';
 import Actions from './Actions';
-import StateChangeEffects from './StateChangeEffects';
+import stateChangeEffects from '../stateChangeEffects';
 import reduxActionsTemplate from '../reduxTemplates/actions';
 import reduxSetupTemplate from '../reduxTemplates/setup';
 import Event from './Event';
@@ -69,7 +65,7 @@ export default class Component {
       const mutatedProp = this.props[mutatedPropName];
       if (!mutatedProp)
         throw new Error(`A '${actionType}' action was defined for a prop '${mutatedPropName}' that doesn't exist.`);
-      return jQueryCall((new StateChangeEffects(this.element(), targetId, mutatedProp, args, actionType)).all);
+      return jQueryCall(stateChangeEffects(this.element(), targetId, mutatedProp, args, actionType));
     };
 
     const eventListeners = this.eventListeners().map(eventListener => {

@@ -1,6 +1,6 @@
-export default function jQueryCall(dependenciesOnProp) {
-  return dependenciesOnProp.map((obj) => {
-    const { elementId, method, newValue, toggleCriterion } = obj;
+export default function jQueryCall(stateChangeEffects) {
+  return stateChangeEffects.map((effectData) => {
+    const { elementId, method, newValue, toggleCriterion } = effectData;
     switch (method) {
     case ('text'):
       return `$('#${elementId}').text(${newValue});`;
@@ -13,12 +13,12 @@ export default function jQueryCall(dependenciesOnProp) {
 
     case ('toggleClass'):
       if (typeof toggleCriterion === 'boolean')
-        return `$('#${elementId}').${toggleCriterion ? 'add' : 'remove'}Class('${obj.className}');`;
+        return `$('#${elementId}').${toggleCriterion ? 'add' : 'remove'}Class('${effectData.className}');`;
 
       const toggleCriterionBool = toggleCriterion === '' ? '' : 'Boolean(' + toggleCriterion + ')';
       return toggleCriterion === ''
-        ? `$('#${elementId}').toggleClass('${obj.className}');`
-        : `$('#${elementId}').toggleClass('${obj.className}', ${toggleCriterionBool});`;
+        ? `$('#${elementId}').toggleClass('${effectData.className}');`
+        : `$('#${elementId}').toggleClass('${effectData.className}', ${toggleCriterionBool});`;
 
     case ('show'):
       return typeof toggleCriterion === 'boolean'
@@ -31,7 +31,7 @@ export default function jQueryCall(dependenciesOnProp) {
         : `$('#${elementId}').toggle(!(${toggleCriterion}));`;
 
     case ('attr'):
-      return `$('#${elementId}').prop('${obj.attributeName}', ${newValue});`;
+      return `$('#${elementId}').prop('${effectData.attributeName}', ${newValue});`;
     }
   }).join('\n\t');
 }

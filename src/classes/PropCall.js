@@ -1,5 +1,5 @@
 import Prop from './Prop';
-import { jQueryArgumentFrom } from './StateChangeEffects';
+import { jQueryArgumentFrom } from '../stateChangeEffects';
 
 export default class PropCall {
   constructor(functionProp, args) {
