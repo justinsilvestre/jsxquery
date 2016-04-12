@@ -1,4 +1,4 @@
-import { findKey, values, isObject } from 'lodash';
+import { findKey, values } from 'lodash';
 import Element from './classes/Element';
 import ConditionalValue from './classes/ConditionalValue';
 
