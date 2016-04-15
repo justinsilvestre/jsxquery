@@ -115,17 +115,21 @@ describe('Prop.prototype.valueSource()', () => {
 
   it('returns a value attribute if its value is the first instance of the prop', () => {
     const sourceForValueAttributeProp = valueAttributeProp.valueSource();
+    const { method, argument} = sourceForValueAttributeProp;
 
     expect(sourceForValueAttributeProp.element.getAttribute('id').displayValue()).toEqual('input-field');
+    expect(method).toEqual('val');
+    expect(argument).toNotExist();
   });
 
   describe('when test condition is the first instance of the prop', () => {
     it('returns visibility state of consequent element in conditional value', () => {
       const sourceForConditionalElementProp = conditionalElementProp.valueSource();
+      const { method, argument } = sourceForConditionalElementProp;
 
       expect(sourceForConditionalElementProp.element.getAttribute('id').displayValue()).toEqual('consequent');
-      expect(sourceForConditionalElementProp.method).toEqual('is');
-      expect(sourceForConditionalElementProp.argument).toEqual(':visible');
+      expect(method).toEqual('is');
+      expect(argument).toEqual(':visible');
     });
 
     it('returns hidden state of alternate element if consequent is absent', () => {

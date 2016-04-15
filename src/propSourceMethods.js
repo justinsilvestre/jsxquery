@@ -31,10 +31,11 @@ export default {
 
   attribute(element, prop) {
     const attribute = attributeAsProp(element, prop);
+
     return attribute && {
       element,
-      method: attribute.name === 'value' ? 'val' : 'prop',
-      argument: attribute.displayName(),
+      method: attribute.jQueryMethod(),
+      argument: attribute.name === 'value' ? undefined : attribute.displayName(),
       equalityCheck: equalityCheckAgainst(attribute.value),
     };
   },
