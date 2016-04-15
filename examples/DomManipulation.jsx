@@ -23,6 +23,9 @@ export default class DomManipulationExample extends Component {
       sum: (num1, num2) => +num1 + +num2,
 
       sideEffect: () => window.alert('...but they should not be taken lightly.'),
+
+      attrProp: 'http://bing.com',
+      htmlProp: 'beep',
     };
   }
 
@@ -37,6 +40,8 @@ export default class DomManipulationExample extends Component {
       'setNum1',
       'setNum2',
       'setBloop',
+      'setAttrProp',
+      'setHtmlProp'
     ];
   }
 
@@ -50,7 +55,9 @@ export default class DomManipulationExample extends Component {
             sum,
             bloop,
             sideEffect,
-            buttonIsDisabled } = this.props;
+            buttonIsDisabled,
+            attrProp,
+            htmlProp } = this.props;
 
     const { toggleBold,
             startHighlighted,
@@ -60,7 +67,9 @@ export default class DomManipulationExample extends Component {
             showContainer,
             setNum1,
             setNum2,
-            setBloop } = this.actions || bindActionCreators(actions, this.props.dispatch);
+            setBloop,
+            setHtmlProp,
+            setAttrProp } = this.actions || bindActionCreators(actions, this.props.dispatch);
 
     const container = (
       <div id="dom-manipulation-container">
@@ -108,6 +117,8 @@ export default class DomManipulationExample extends Component {
         <span id="dom-manipulation-result">{sum(num1, num2)}</span>
         <br />
         <button id="dom-manipulation-side-effect" onClick={() => sideEffect()} >Side effects are necessary, in the end.</button>
+        <span onMouseMove={() => setHtmlProp('boop')} id="html" dangerouslySetInnerHTML={{ __html: htmlProp }} />
+        <a id="attr" onScroll={() => setAttrProp('http://google.com')} href={attrProp}>attribute shall change</a>
       </div>
     );
 

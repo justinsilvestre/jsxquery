@@ -114,6 +114,14 @@
     $('#dom-manipulation-number-2').on('change input', function() {
       $('#dom-manipulation-result').text(DomManipulationExample.sum($('#dom-manipulation-number-1').val(), $('#dom-manipulation-number-2').val()));
     });
+
+    $('#html').on('mousemove', function() {
+      $('#html').html("boop")
+    });
+
+    $('#attr').on('scroll', function() {
+      $('#attr').attr('href', "http://google.com")
+    })
     </script>
   </body>
 </html>
