@@ -11,6 +11,9 @@ export function jQueryArgumentFrom(arg) {
       || PropCall.isPropCall(arg))
     return arg.toJQueryCode();
 
+  if (arg && typeof arg === 'object')
+    return arg;
+
   return typeof arg === 'boolean' ? arg : JSON.stringify(arg);
 }
 
@@ -91,7 +94,7 @@ function extractDynamicAttributesFrom(element, targetId, mutatedProp, args, acti
   return relevantDynamicAttributes.reduce((arr, attribute) =>
     arr.concat({
       elementId: element.getIdForProp(mutatedProp.initialName, 'dynamic attribute'),
-      method: 'attr',
+      method: attribute.jQueryMethod(),
       attributeName: attribute.name,
       newValue: PropCall.isPropCall(attribute.value)
         ? attribute.value.toJQueryCode()
@@ -99,6 +102,17 @@ function extractDynamicAttributesFrom(element, targetId, mutatedProp, args, acti
     })
   , []);
 }
+
+// function extractDynamicListItemsFrom(element, targetId, mutatedProp, args, actionType) {
+//   const relevant = element.children.find(c => c.isContainer() && c.value.isArray());
+// // maybe element keeps track if prop was mapped + map function
+// // maybe prop accumulates appearances and map function
+//   return relevant ? {
+//     elementId: element.getIdForProp(mutatedProp.initialName, 'list'),
+//     method: 'append',
+//     newValue: mutatedProp.
+//   } : [];
+// }
 
 export default function stateChangeEffects(element, targetId, mutatedProp, args, actionType) {
   return flatMap(element.elementNodes(), el =>
