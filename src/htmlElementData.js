@@ -7,3 +7,6 @@ export const INLINE_ELEMENTS = ['b', 'big', 'i', 'small', 'tt',
 export const VOID_ELEMENTS = ['area', 'base', 'br', 'col', 'embed', 'hr', 'img',
   'input', 'keygen', 'link', 'menuitem', 'meta', 'param', 'source',
   'track', 'wbr'];
+
+export const ATTRIBUTES_TO_TREAT_WITH_PROP_METHOD = ['async', 'autofocus', 'checked',
+  'location', 'multiple', 'readOnly', 'selected'];

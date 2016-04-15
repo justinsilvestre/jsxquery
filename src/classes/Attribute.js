@@ -4,6 +4,7 @@ import { cChoose } from '../jstlHelpers';
 import Prop from './Prop';
 import PropCall from './PropCall';
 import ConditionalValue from './ConditionalValue';
+import ATTRIBUTES_TO_TREAT_WITH_PROP_METHOD from '../htmlElementData';
 
 const NAME_ALIAS_MAP = { className: 'class', htmlFor: 'for' };
 
@@ -27,6 +28,16 @@ export default class Attribute {
 
     if (this.isEventHandler() && !isFunction(this.value))
       throw new Error(`Your '${name} attribute needs a function value. Did you forget to wrap an action call in a function?`);
+  }
+
+  jQueryMethod() {
+    const { name } = this;
+    if (name === 'value')
+      return 'val';
+    else if (contains(ATTRIBUTES_TO_TREAT_WITH_PROP_METHOD, name))
+      return 'prop';
+    else
+      return 'attr';
   }
 
   isConditional() {

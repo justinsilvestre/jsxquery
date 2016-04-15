@@ -31,7 +31,13 @@ export default function jQueryCall(stateChangeEffects) {
         : `$('#${elementId}').toggle(!(${toggleCriterion}));`;
 
     case ('attr'):
+      return `$('#${elementId}').attr('${effectData.attributeName}', ${newValue});`;
+
+    case ('prop'):
       return `$('#${elementId}').prop('${effectData.attributeName}', ${newValue});`;
+
+    case ('append'):
+      return `$('#${elementId}').append(${effectData.newValue});`;
     }
   }).join('\n\t');
 }
