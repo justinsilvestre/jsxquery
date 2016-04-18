@@ -94,7 +94,7 @@ export default class Prop {
   toJQueryCode() {
     const { element, method, argument, equalityCheck } = this.valueSource();
     const elementId = element.getAttribute('id').displayValue();
-    const argumentString = argument ? JSON.stringify(argument) : '';
+    const argumentString = typeof argument !== 'undefined' ? JSON.stringify(argument) : '';
     return `$('#${elementId}').${method}(${argumentString})${equalityCheck || ''}`;
   }
 
