@@ -1,5 +1,6 @@
 import Element, { createElement } from './classes/Element';
 import Component, { createClass } from './classes/Component';
+import classNames from './classNames';
 import ConditionalValue from './classes/ConditionalValue';
 
 const jsxQuery = {
@@ -15,9 +16,7 @@ const jsxQuery = {
     return new ConditionalValue(test, consequent, alternate);
   },
 
-  classNames(obj, loadedProps = [], mutableProps = []) {
-    return { '_classNames_': obj, loadedProps, mutableProps };
-  },
+  classNames,
 
   // map(collection, callbackParam, callback) {
   //   const el = new Element('c:forEach',
