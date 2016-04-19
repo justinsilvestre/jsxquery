@@ -1,4 +1,5 @@
 import { createElement } from './classes/Element';
+const jsxQuery = { createElement };
 
 export function cChoose(testValue, consequent, alternate) {
   const loneOption = (consequent && alternate) ? null : (consequent || alternate);

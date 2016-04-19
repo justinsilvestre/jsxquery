@@ -1,6 +1,5 @@
 import transformNamespacedNames from '../babelTransformPlugins/namespacedNames';
 import transformConditionalExpressions from '../babelTransformPlugins/conditionalExpressions';
-import transformClassNamesCalls from '../babelTransformPlugins/ClassNamesCalls';
 
 export default {
   'presets': [require('babel-preset-stage-2')],
@@ -14,7 +13,6 @@ export default {
     // definitely need to make stuff work with both createElement
     // calls and babel'd createElement calls. plus ternary calls.
     transformConditionalExpressions,
-    transformClassNamesCalls,
     require('babel-plugin-transform-es2015-modules-commonjs'),
   ],
 };

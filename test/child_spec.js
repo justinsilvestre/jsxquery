@@ -2,7 +2,8 @@ import expect from 'expect';
 import Child from '../src/classes/Child';
 import Prop from '../src/classes/Prop';
 import ConditionalValue from '../src/classes/ConditionalValue';
-import jsxQuery, { createElement } from '../src/jsxquery';
+import * as jsxQuery from '../src/jsxquery';
+const createElement = jsxQuery.createElement;
 
 describe('Child', () => {
   const stringChild = new Child('hello <b>there</b>');

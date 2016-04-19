@@ -1,12 +1,11 @@
 {
-  "presets": ["stage-2"],
+  "presets": ["es2015", "stage-2"],
   "plugins": [
     "transform-runtime",
     "./src/babelTransformPlugins/namespacedNames",
     "transform-react-display-name",
-    ["transform-react-jsx", { "pragma": "createElement" }],
+    ["transform-react-jsx", { "pragma": "jsxQuery.createElement" }],
     "./src/babelTransformPlugins/conditionalExpressions",
-    "./src/babelTransformPlugins/classNamesCalls",
     "transform-es2015-modules-commonjs",
     "transform-es2015-destructuring",
     "transform-es2015-parameters",

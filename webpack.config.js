@@ -1,4 +1,9 @@
 var path = require('path');
+// require.main.paths.push('./src/babelTransformPlugins')
+var transformNamespacedNames = require('./src/babelTransformPlugins/namespacedNames');
+var transformConditionalExpressions = require('./src/babelTransformPlugins/conditionalExpressions');
+var transformClassNamesCalls = require('./src/babelTransformPlugins/classNamesCalls');
+
 
 module.exports = {
   entry: path.join(__dirname, 'src', 'demo.js'),
@@ -14,17 +19,20 @@ module.exports = {
         test: /\.jsx?$/,
         loader: 'babel',
         exclude: /node_modules/,
-        query: {
-          presets: ['es2015'],
-          plugins: [
-    "transform-runtime",
-    "./src/babelTransformPlugins/namespacedNames",
-    "transform-react-display-name",
-            ['transform-react-jsx', { 'pragma': 'jsxQuery.createElement' }],
-    "./src/babelTransformPlugins/conditionalExpressions",
-    "./src/babelTransformPlugins/classNamesCalls",
-          ],
-        },
+    //     query: {
+    //       presets: ['es2015'],
+    //       plugins: [
+    // "transform-runtime",
+    // "../src/babelTransformPlugins/namespacedNames",
+    // // transformNamespacedNames,
+    // "transform-react-display-name",
+    //         ['transform-react-jsx', { 'pragma': 'jsxQuery.createElement' }],
+    // // "./src/babelTransformPlugins/conditionalExpressions",
+    // // "./src/babelTransformPlugins/classNamesCalls",
+    // // transformConditionalExpressions,
+    // // transformClassNamesCalls,
+    //       ],
+        // },
       },
       {
         test: /\.json$/,

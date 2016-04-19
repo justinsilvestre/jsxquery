@@ -3,7 +3,7 @@ import expect from 'expect';
 import { transform } from 'babel-core';
 import DomManipulationExample from '../examples/DomManipulation.jsx';
 import { prepareTransform, codeAtNodes, normalizeWhitespace, calleeName } from '../src/babelTraverseHelpers';
-import { createElement } from '../src/jsxquery';
+import * as jsxQuery from '../src/jsxquery';
 
 var window;
 var expectedScript;
