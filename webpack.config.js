@@ -3,7 +3,7 @@ var path = require('path');
 module.exports = {
   entry: path.join(__dirname, 'src', 'demo.js'),
   output: {
-    path: path.join(__dirname, 'dist'),
+    path: path.join(__dirname, 'demo'),
     filename: 'jsxquery.js',
     libraryTarget: 'var',
     library: 'jsxQuery',

@@ -18,7 +18,7 @@ const handlerRegex = eventType => new RegExp("\\S+\\.on\\('" + eventType + "'\\,
 const handlersInActualScript = eventType => actualScript.match(handlerRegex(eventType));
 
 before(() => {
-  jsdom.env('domManipulationExample.html', [], (er, w) => {
+  jsdom.env('test/expectedJQuery.html', [], (er, w) => {
     if (!('document' in w))
       throw new Error('jsdom had a problem. Run the test suite again.');
 
