@@ -3,6 +3,7 @@ import jsxQuery from './jsxquery';
 import babelOptions from './babelOptions/demo';
 import babelReactOptions from './babelOptions/react';
 import classNamesOriginal from 'classnames';
+import runtime from 'jsxquery-runtime'
 
 function transform(code) {
   return babelTransform(code, babelOptions);
@@ -27,5 +28,6 @@ module.exports = Object.assign({},
     transform,
     reactTransform,
     classNamesOriginal,
+    runtime,
   }
 );

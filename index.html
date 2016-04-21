@@ -118,20 +118,25 @@
       <button id="render-component" value="render Component">Render your Component</button>
     </div>
     <script>
+  window.jsxQueryTransform = jsxQuery;
+  window.jsxQueryRuntime = jsxQuery.runtime;
+
   var Demo = {
     reduxRenderCode() {
-      var actionsCode = jsxQuery.reactTransform(window.demoComponent.redux().actions).code;
+      var actionsCode = jsxQueryTransform.reactTransform(window.demoComponent.redux().actions).code;
       eval(actionsCode)
       window.updateComponent = window.exports.updateComponent;
 
       window.Component = React.Component;
-      window.classNames = jsxQuery.classNamesOriginal;
+      window.classNames = jsxQueryTransform.classNamesOriginal;
 
-      transformedCode = jsxQuery.reactTransform($('#code').val()).code;
+      transformedCode = jsxQueryTransform.reactTransform($('#code').val()).code;
       eval(transformedCode);
 
       var reduxRenderCode = `
-var generatedReduxSetupCode = demoComponent.redux().setup;
+var generatedReduxCode = demoComponent.redux();
+var generatedReduxSetupCode = generatedReduxCode.setup;
+var generatedReduxActionsCode = generatedReduxCode.actions;
 window.generatedReduxSetupCode = generatedReduxSetupCode;
 var reactComponent = window.exports.default;
 window.reactComponent = reactComponent;
@@ -142,17 +147,17 @@ var setupRedux = eval(generatedReduxSetupCode);
 ReactDOM.render(setupRedux(reactComponent), document.getElementById('view'));
 
 // play around some in the console
-Object.assign(window, { reactComponent, setupRedux, generatedReduxSetupCode });
+Object.assign(window, { reactComponent, setupRedux, generatedReduxSetupCode, generatedReduxActionsCode });
 console.log(generatedReduxSetupCode);
 `;
       return reduxRenderCode;
     },
 
     jQueryRenderCode() {
-      Component = jsxQuery.Component;
-      classNames = jsxQuery.classNames;
+      Component = jsxQueryTransform.Component;
+      classNames = jsxQueryTransform.classNames;
 
-      transformedCode = jsxQuery.transform($('#code').val()).code;
+      transformedCode = jsxQueryTransform.transform($('#code').val()).code;
       eval(transformedCode);
 
       var jQueryRenderCode = `var DemoComponent = window.exports.default;
@@ -173,11 +178,15 @@ console.log(generatedJQuery);
     },
 
     renderComponent() {
+      window.jsxQuery = jsxQueryTransform;
+
         window.bindActionCreators = Redux.bindActionCreators;
         window.actionsHash = window.exports.actionsHash;
 
         var transformedRenderCode = jsxQuery.transform($('#render-code').val()).code;
         eval(transformedRenderCode);
+
+      window.jsxQuery = jsxQueryRuntime;
     },
   }
 
