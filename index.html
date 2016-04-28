@@ -195,7 +195,11 @@ console.log(generatedJQuery);
 
     var Component, classNames, component;
     var transformedCode = '';
-    window.exports = { };
+    window.module = window;
+    window.exports = window.module.exports = window;
+    function require(moduleName) {
+      return window.exports[moduleName]
+    }
 
 
     $(function() {
