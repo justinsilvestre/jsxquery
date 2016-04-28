@@ -1,5 +1,6 @@
 import { contains, isFunction } from 'lodash';
 import PropCall from './PropCall';
+import PropListTransform from './PropListTransform';
 
 function isValidComponent(val) {
   return 'mutableProps' in val; // maybe shoudl test from callsfromhandler?
@@ -62,6 +63,16 @@ export default class Prop {
   }
 
   map(callback) {
+    if (this.wasLoaded()) {
+      const { parent, initialName, value, wasLoaded } = this;
+      return new PropListTransform({
+        propValue: this.value,
+        type: 'map',
+        callback,
+        parent, initialName, value, wasLoaded
+      })
+    }
+
     if (!this.isArray())
       throw new Error(`You cannot map over your prop '${this.initialName}' as it is not an array.`);
 

@@ -10,7 +10,8 @@ function markupFromValue(value, indents) {
     : escape((Prop.isProp(value) || PropCall.isPropCall(value)) ? value.initialValue() : value);
 }
 
-const isDynamicValue = val => Prop.isProp(val) || PropCall.isPropCall(val)
+const isDynamicValue = val => typeof val ==='object' && Prop.isProp(val) || PropCall.isPropCall(val)
+  || val._isChainable
   || (ConditionalValue.isConditionalValue(val) && !val.isElement());
 
 export default class Child {
