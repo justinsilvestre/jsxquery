@@ -9,9 +9,7 @@ export default class PropCall {
 
   toJQueryCode() {
     const { prop, args } = this;
-    const namespaceName = this.prop.parent.namespaceName();
-
-    return namespaceName + '.' + prop.initialName + '(' + args.map(jQueryArgumentFrom).join(', ') + ')';
+    return 'propMethods[' + JSON.stringify(prop.initialName) + '](' + args.map(jQueryArgumentFrom).join(', ') + ')';
   }
 
   initialValue() {

@@ -52,13 +52,14 @@ export default class Component {
 
   jQuery() {
     const propMethodStrings = this.propMethodStrings();
-    const propMethodsChunk = `var ${this.namespaceName()} = {\n\t` + Object.keys(propMethodStrings).map(propMethodName => {
+    const propMethodsChunk = `var propMethods = {\n\t` + Object.keys(propMethodStrings).map(propMethodName => {
       return '\t' + propMethodName + ': ' + propMethodStrings[propMethodName].replace('\n', '\t');
       //
       // THIS IS SLOPPY. ANY NEWLINES IN A TEMPLATE STRING WILL BE COUNTED AS WELL.
       //
       //
-    }).join(',\n') + '\n};';
+    }).join(',\n') + '\n};'
+    + '\nObject.assign(module.exports, propMethods)\n';
 
     const jQueryChange = (actionCall, targetId) => {
       const { actionType, mutatedProp: mutatedPropName, args } = actionCall;
