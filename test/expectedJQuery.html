@@ -54,12 +54,15 @@
       mocha.ui('bdd')
     </script>-->
     <script src="demo/jsxquery.js"></script>
+    <script>
+      var module = { exports: {} };
+    </script>
 
 
     <script id="dom-manipulation-script">
     var container = $('#dom-manipulation-container');
 
-    const DomManipulationExample = {
+    const propMethods = {
       sum(num1, num2) {
         const parsedNum1 = +num1;
         const parsedNum2 = +num2;
@@ -70,6 +73,7 @@
         window.alert('whoa!')
       }
     };
+    Object.assign(module.exports, propMethods)
 
     // TOGGLE BOLD
     $('#dom-manipulation-bold').on('click', function() {
@@ -104,15 +108,15 @@
     });
 
     $('#dom-manipulation-side-effect').on('click', function() {
-      DomManipulationExample.sideEffect();
+      propMethods["sideEffect"]();
     });
 
     $('#dom-manipulation-number-1').on('change input', function() {
-      $('#dom-manipulation-result').text(DomManipulationExample.sum($('#dom-manipulation-number-1').val(), $('#dom-manipulation-number-2').val()));
+      $('#dom-manipulation-result').text(propMethods["sum"]($('#dom-manipulation-number-1').val(), $('#dom-manipulation-number-2').val()));
     });
 
     $('#dom-manipulation-number-2').on('change input', function() {
-      $('#dom-manipulation-result').text(DomManipulationExample.sum($('#dom-manipulation-number-1').val(), $('#dom-manipulation-number-2').val()));
+      $('#dom-manipulation-result').text(propMethods["sum"]($('#dom-manipulation-number-1').val(), $('#dom-manipulation-number-2').val()));
     });
 
     $('#html').on('mousemove', function() {
