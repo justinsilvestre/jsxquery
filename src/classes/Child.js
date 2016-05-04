@@ -18,8 +18,9 @@ const isDynamicValue = val => Prop.isProp(val)
 
 export default class Child {
   constructor(value, isRaw) {
-    this._isArray = Array.isArray(value);
-    if (this._isArray && !value.every(Element.isElement))
+    this.value = value;
+
+    if (this.val(Array.isArray) && !value.every(Element.isElement))
       throw new Error('When providing an array as Element child, each value in the array must be an Element');
 
     this._isConditional = ConditionalValue.isConditionalValue(value);
@@ -36,38 +37,30 @@ export default class Child {
 
     }
 
-    // if (this._isCondi)
-
-    
-    // if (this._isConditional && [consequent, alternate].filter(o=>o).every(Element.isElement))
-    // ('The consequent and alternate in a dynamic conditional child must both be Elements or not Elements');
-
-    this._isContainer = isDynamicValue(value);
-
-    this.value = value;
+    this._isDynamicText = isDynamicValue(value);
 
     if (isRaw)
       this._isRaw = true;
+  }
+
+  val(fn) {
+    return fn(this.value);
   }
 
   isConditional() {
     return this._isConditional;
   }
 
-  isContainer() {
-    return this._isContainer;
+  isDynamicText() {
+    return this._isDynamicText;
   }
 
   isRaw() {
     return this._isRaw || false;
   }
 
-  isArray() {
-    return this._isArray;
-  }
-
   renderRaw() {
-    if (this.isContainer())
+    if (this.isDynamicText())
       return this.value.initialValue();
 
     return this.value;
@@ -77,13 +70,13 @@ export default class Child {
     if (this._isRaw)
       return this.renderRaw(indents);
 
-    if (this.isArray())
+    if (this.val(Array.isArray))
       return this.value.map(e => e.markup(indents)).join('\n');
 
     if (this.isConditional())
       return this.value.render(indents);
 
-    if (this.isContainer()) {
+    if (this.isDynamicText()) {
       return markupFromValue(this.value.initialValue(), indents);
     }
 

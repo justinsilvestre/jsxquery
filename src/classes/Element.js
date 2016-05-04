@@ -60,7 +60,7 @@ export default class Element {
       || (rawTextChildValue && [new Child(rawTextChildValue, true)])
       || (isEmpty(children) ? [] : children.map(child => new Child(child)));
 
-    const dynamicTextContentChild = this.children.some(child => child.isContainer());
+    const dynamicTextContentChild = this.children.some(child => child.isDynamicText());
     const idAttribute = this.getAttribute('id');
     if (dynamicTextContentChild && this.children.length > 1)
       throw new Error(`Your <${this.tagName}> element has dynamic text content not wrapped in its own element`);
@@ -94,7 +94,7 @@ export default class Element {
   }
 
   hasDynamicInnerHTML() {
-    return this.children.some(c => c.isContainer() && c.isRaw())
+    return this.children.some(c => c.isDynamicText() && c.isRaw())
   }
 
   childrenMarkup(indents) {

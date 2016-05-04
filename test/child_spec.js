@@ -75,16 +75,16 @@ describe('Child', () => {
     });
   });
 
-  describe('isContainer()', () => {
+  describe('isDynamicText()', () => {
     it('returns false for element children and static text children', () => {
-      expect([stringChild.isContainer(), 'string']).toEqual([false, 'string']);
-      expect([elementChild.isContainer(), 'element']).toEqual([false, 'element']);
-      expect([conditionalChild.isContainer(), 'conditional element']).toEqual([false, 'conditional element']);
+      expect([stringChild.isDynamicText(), 'string']).toEqual([false, 'string']);
+      expect([elementChild.isDynamicText(), 'element']).toEqual([false, 'element']);
+      expect([conditionalChild.isDynamicText(), 'conditional element']).toEqual([false, 'conditional element']);
     });
 
     it('returns true for a Child created from a component prop, or a conditional text child', () => {
-      expect(containerChild.isContainer()).toBe(true);
-      expect(conditionalStringChild.isContainer()).toBe(true);
+      expect(containerChild.isDynamicText()).toBe(true);
+      expect(conditionalStringChild.isDynamicText()).toBe(true);
     });
   });
 

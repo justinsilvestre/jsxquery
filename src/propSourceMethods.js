@@ -3,7 +3,7 @@ import Element from './classes/Element';
 import ConditionalValue from './classes/ConditionalValue';
 
 const dependsOnProp = (val, prop) => val === prop || ConditionalValue.isConditionalValue(val) && val.test === prop;
-const containerChildAsProp = (el, prop) => el.children.find(c => c.isContainer() && dependsOnProp(c.value, prop));
+const dynamicTextChild = (el, prop) => el.children.find(c => c.isDynamicText() && dependsOnProp(c.value, prop));
 const attributeAsProp = (el, prop) => values(el.attributes).find(a => dependsOnProp(a.value, prop));
 const dynamicClassFromProp = (el, prop) => findKey(el.classNamesHash(), c => dependsOnProp(c, prop));
 const childWithTestConditionProp = (el, prop) =>
@@ -21,7 +21,7 @@ function equalityCheckAgainst(val) {
 
 export default {
   textChild(element, prop) {
-    const child = containerChildAsProp(element, prop);
+    const child = dynamicTextChild(element, prop);
     return child && {
       element,
       method: child.isRaw() ? 'html' : 'text',

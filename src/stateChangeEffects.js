@@ -34,7 +34,7 @@ function extractDynamicClassNamesFrom(element, targetId, mutatedProp, args, acti
 }
 
 function extractDynamicTextChildrenFrom(element, targetId, mutatedProp, args, actionType) {
-  return element.children.filter(c => c.isContainer() && mutatedProp.concerns(c.value)).map(c => ({
+  return element.children.filter(c => c.isDynamicText() && mutatedProp.concerns(c.value)).map(c => ({
     elementId: element.getIdForProp(mutatedProp.initialName, 'dynamic content'),
     method: c.isRaw() ? 'html' : 'text',
     // newValue: jQueryArgumentFrom(c.value),
@@ -104,7 +104,7 @@ function extractDynamicAttributesFrom(element, targetId, mutatedProp, args, acti
 }
 
 // function extractDynamicListItemsFrom(element, targetId, mutatedProp, args, actionType) {
-//   const relevant = element.children.find(c => c.isContainer() && c.value.isArray());
+//   const relevant = element.children.find(c => c.isDynamicText() && c.value.isArray());
 // // maybe element keeps track if prop was mapped + map function
 // // maybe prop accumulates appearances and map function
 //   return relevant ? {
