@@ -1,6 +1,8 @@
 import { contains, isFunction } from 'lodash';
 import PropCall from './PropCall';
-import PropListTransform from './PropListTransform';
+import Chainable from './Chainable';
+import { createElement } from './Element';
+const jsxQuery = { createElement };
 
 function isValidComponent(val) {
   return 'mutableProps' in val; // maybe shoudl test from callsfromhandler?
@@ -63,20 +65,15 @@ export default class Prop {
   }
 
   map(callback) {
-    if (this.wasLoaded()) {
-      const { parent, initialName, value, wasLoaded } = this;
-      return new PropListTransform({
-        propValue: this.value,
-        type: 'map',
-        callback,
-        parent, initialName, value, wasLoaded
-      })
-    }
-
-    if (!this.isArray())
+    if (!this.wasLoaded() && !this.isArray())
       throw new Error(`You cannot map over your prop '${this.initialName}' as it is not an array.`);
 
-    return this.value.map(callback);
+    const { parent, initialName, value, _wasLoaded } = this;
+    const transforms = (this.transforms || []).concat({
+      type: 'map',
+      callback,
+    });
+    return Object.assign(new Prop(parent, initialName, value, _wasLoaded), { transforms });
   }
 
   valueSource() {
@@ -110,6 +107,20 @@ export default class Prop {
   }
 
   initialValue() {
+    if (this.transforms) {
+      if (this.wasLoaded()) {
+        const loopVar = this.initialName + 'Item';
+        const varStatus = this.transforms[0].callback.length > 1 ? this.initialName + 'Index' : false;
+        const content = this.transforms[0].callback(new Chainable(loopVar), new Chainable(varStatus).loop);
+        return (
+          <c:forEach var={loopVar} items={this.value} varStatus={varStatus}>
+            {content}
+          </c:forEach>
+        );
+      } else {
+        return this.value.map(this.transforms[0].callback)
+      }
+    }
     return this.value;
   }
 }

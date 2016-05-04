@@ -46,23 +46,47 @@ describe('Prop', () => {
     const functionPropWithParameters = new Prop(mockParent, 'myFunc', (num1, num2) => +num1 + +num2, false);
     const numProp1 = new Prop(mockParent, 'num1', 1, false);
     const numProp2 = new Prop(mockParent, 'num1', 2, false);
+
     it('returns the result of function at .value for a prop call with prop arguments', () => {
       expect(functionPropWithParameters(numProp1, numProp2).initialValue()).toEqual(3);
     });
+
+    describe('with list Props', () => {    
+      it('transforms with provided callback over value when not loaded', () => {
+        const arrayValue = ['a','b','c','d'];
+        const listProp = new Prop(mockParent, 'listProp', arrayValue, false);
+        const wrapWithSpan = val => <span id="boop">{val}</span>;
+
+        expect(listProp.map(wrapWithSpan).initialValue()).toEqual(arrayValue.map(wrapWithSpan));
+      });
+
+      it('uses JSTL logic to iterate over value when loaded', () => {
+        const arrayValue = ['a','b','c','d'];
+        const loadedListProp = new Prop(mockParent, 'loadedListProp', arrayValue, true);
+        const wrapWithSpan = val => <span id="boop">{val}</span>;
+
+        expect(loadedListProp.map(wrapWithSpan).initialValue()).toContain({
+          tagName: 'c:forEach'
+        });
+      })
+    })
   });
 
   describe('map()', () => {
-    it('throws an error if value is not array', () => {
-      expect(() => functionProp.map(a => a)).toThrow(
-        `You cannot map over your prop '${functionProp.initialName}' as it is not an array.`
+    it('throws an error if value is not array and was not loaded', () => {
+      const nonLoadedArrayProp = new Prop(mockParent, 'someProp', 'thisIsNotAnArray', false);
+
+      expect(() => nonLoadedArrayProp.map(a => a)).toThrow(
+        `You cannot map over your prop '${nonLoadedArrayProp.initialName}' as it is not an array.`
       );
     });
 
-    it('delegates to value\'s map() function if the prop was not loaded', () => {
-      const arrayProp = new Prop(mockParent, 'arrayProp', ['a', 'b', 'c'], false);
+    it('returns a new Prop with same value when called with array value', () => {
+      const arrayValue = 'abcdefg'.split('');;
+      const propToMap = new Prop(mockParent, 'toBeMapped', arrayValue, false)
+      const mappedProp = propToMap.map(a => <span>{a}</span>)
 
-      const callback = v => 'whoop!!!' + v;
-      expect(arrayProp.map(callback)).toEqual(arrayProp.value.map(callback));
+      expect(mappedProp.value).toBe(arrayValue);
     });
   });
 });

@@ -1,6 +1,7 @@
 import Prop from './Prop';
 import PropCall from './PropCall';
 import ConditionalValue from './ConditionalValue';
+import Chainable from './Chainable';
 import Element from './Element';
 import { escape } from 'lodash';
 
@@ -10,8 +11,9 @@ function markupFromValue(value, indents) {
     : escape((Prop.isProp(value) || PropCall.isPropCall(value)) ? value.initialValue() : value);
 }
 
-const isDynamicValue = val => typeof val ==='object' && Prop.isProp(val) || PropCall.isPropCall(val)
-  || val._isChainable
+const isDynamicValue = val => Prop.isProp(val)
+  || PropCall.isPropCall(val)
+  || Chainable.isChainable(val)
   || (ConditionalValue.isConditionalValue(val) && !val.isElement());
 
 export default class Child {
@@ -78,12 +80,12 @@ export default class Child {
     if (this.isArray())
       return this.value.map(e => e.markup(indents)).join('\n');
 
-    if (this.isContainer()) {
-      return this.isConditional() ? this.value.render(indents) : markupFromValue(this.value.initialValue(), indents);
-    }
-
     if (this.isConditional())
       return this.value.render(indents);
+
+    if (this.isContainer()) {
+      return markupFromValue(this.value.initialValue(), indents);
+    }
 
     return markupFromValue(this.value, indents);
   }

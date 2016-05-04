@@ -24,7 +24,7 @@ export default class Attribute {
     this.name = name;
     this.value = value;
     this._isConditional = ConditionalValue.isConditionalValue(value);
-    this._isContainer = Prop.isProp(value) || PropCall.isPropCall(value) || typeof value === 'object' && 'initialValue' in value;
+    this._isContainer = Prop.isProp(value) || PropCall.isPropCall(value);
 
     if (this.isEventHandler() && !isFunction(this.value))
       throw new Error(`Your '${name} attribute needs a function value. Did you forget to wrap an action call in a function?`);
