@@ -50,27 +50,31 @@ describe('Prop', () => {
     it('returns the result of function at .value for a prop call with prop arguments', () => {
       expect(functionPropWithParameters(numProp1, numProp2).initialValue()).toEqual(3);
     });
-
-    describe('with list Props', () => {    
-      it('transforms with provided callback over value when not loaded', () => {
-        const arrayValue = ['a','b','c','d'];
-        const listProp = new Prop(mockParent, 'listProp', arrayValue, false);
-        const wrapWithSpan = val => <span id="boop">{val}</span>;
-
-        expect(listProp.map(wrapWithSpan).initialValue()).toEqual(arrayValue.map(wrapWithSpan));
-      });
-
-      it('uses JSTL logic to iterate over value when loaded', () => {
-        const arrayValue = ['a','b','c','d'];
-        const loadedListProp = new Prop(mockParent, 'loadedListProp', arrayValue, true);
-        const wrapWithSpan = val => <span id="boop">{val}</span>;
-
-        expect(loadedListProp.map(wrapWithSpan).initialValue()).toContain({
-          tagName: 'c:forEach'
-        });
-      })
-    })
   });
+
+  describe('transformed()', () => {    
+    it('transforms mapped-over list prop with provided callback when not loaded', () => {
+      const arrayValue = ['a','b','c','d'];
+      const listProp = new Prop(mockParent, 'listProp', arrayValue, false);
+      const wrapWithSpan = val => <span id="boop">{val}</span>;
+
+      expect(listProp.map(wrapWithSpan).transformed()).toEqual(arrayValue.map(wrapWithSpan));
+    });
+
+    it('uses JSTL logic to iterate over prop value when loaded', () => {
+      const arrayValue = ['a','b','c','d'];
+      const loadedListProp = new Prop(mockParent, 'loadedListProp', arrayValue, true);
+      const wrapWithSpan = val => <span id="boop">{val}</span>;
+
+      expect(loadedListProp.map(wrapWithSpan).transformed()).toContain({
+        tagName: 'c:forEach'
+      });
+    });
+
+    it('returns void for non-transformed prop', () => {
+      expect(functionProp.transformed()).toNotExist();
+    })
+  })
 
   describe('map()', () => {
     it('throws an error if value is not array and was not loaded', () => {

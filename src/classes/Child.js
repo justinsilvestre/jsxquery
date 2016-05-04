@@ -6,9 +6,20 @@ import Element from './Element';
 import { escape } from 'lodash';
 
 function markupFromValue(value, indents) {
+  if (Element.isElement(value))
+    return value.markup(indents);
+
+  if (Prop.isProp(value))
+    return value.initialValue() 
+
+  if (PropCall.isPropCall(value) || Prop.isProp(value))
+    return escape(value.initialValue());
+
+  return escape(value);
+
   return Element.isElement(value)
     ? value.markup(indents)
-    : escape((Prop.isProp(value) || PropCall.isPropCall(value)) ? value.initialValue() : value);
+    : (Prop.isProp(value) || PropCall.isPropCall(value)) ? value.initialValue() : escape(value);
 }
 
 const isDynamicValue = val => Prop.isProp(val)
@@ -20,7 +31,7 @@ export default class Child {
   constructor(value, isRaw) {
     this.value = value;
 
-    if (this.val(Array.isArray) && !value.every(Element.isElement))
+    if (this.arrayValue() && !this.arrayValue().every(Element.isElement))
       throw new Error('When providing an array as Element child, each value in the array must be an Element');
 
     this._isConditional = ConditionalValue.isConditionalValue(value);
@@ -43,8 +54,12 @@ export default class Child {
       this._isRaw = true;
   }
 
-  val(fn) {
-    return fn(this.value);
+  arrayValue() {
+    if (Array.isArray(this.value))
+      return this.value;
+
+    if (Prop.isProp(this.value) && Array.isArray(this.value.transformed()))
+      return this.value.transformed();
   }
 
   isConditional() {
@@ -70,8 +85,8 @@ export default class Child {
     if (this._isRaw)
       return this.renderRaw(indents);
 
-    if (this.val(Array.isArray))
-      return this.value.map(e => e.markup(indents)).join('\n');
+    if (this.arrayValue())
+      return this.arrayValue().map(e => e.markup(indents)).join('\n');
 
     if (this.isConditional())
       return this.value.render(indents);

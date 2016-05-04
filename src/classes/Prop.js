@@ -29,20 +29,10 @@ export default class Prop {
 
       return propCall;
     };
-    var prop = isFunction(value) ? functionProp : this;
 
-    Object.assign(prop, {
-      parent,
-      initialName,
-      value,
-      _wasLoaded,
-      isMutable: Prop.prototype.isMutable, // should this be bound?
-      wasLoaded: Prop.prototype.wasLoaded,
-      map: Prop.prototype.map,
-      isArray: Prop.prototype.isArray,
-    });
+    var prop = isFunction(value) ? Object.setPrototypeOf(functionProp, Prop.prototype) : this;
 
-    return prop;
+    return Object.assign(prop, { parent, initialName, value, _wasLoaded })
   }
 
   static isProp(val) {
@@ -107,20 +97,23 @@ export default class Prop {
   }
 
   initialValue() {
-    if (this.transforms) {
-      if (this.wasLoaded()) {
-        const loopVar = this.initialName + 'Item';
-        const varStatus = this.transforms[0].callback.length > 1 ? this.initialName + 'Index' : false;
-        const content = this.transforms[0].callback(new Chainable(loopVar), new Chainable(varStatus).loop);
-        return (
-          <c:forEach var={loopVar} items={this.value} varStatus={varStatus}>
-            {content}
-          </c:forEach>
-        );
-      } else {
-        return this.value.map(this.transforms[0].callback)
-      }
-    }
     return this.value;
+  }
+
+  transformed() {
+    if (!this.transforms)
+      return;
+
+    if (!this.wasLoaded())
+      return this.value.map(this.transforms[0].callback);
+
+    const loopVar = this.initialName + 'Item';
+    const varStatus = this.transforms[0].callback.length > 1 ? this.initialName + 'Index' : false;
+    const content = this.transforms[0].callback(new Chainable(loopVar), new Chainable(varStatus).loop);
+    return (
+      <c:forEach var={loopVar} items={this.value} varStatus={varStatus}>
+        {content}
+      </c:forEach>
+    );
   }
 }
