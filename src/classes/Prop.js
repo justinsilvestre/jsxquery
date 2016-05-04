@@ -84,7 +84,7 @@ export default class Prop {
   }
 
   concerns(value) {
-    return Prop.isProp(value) && value.value === this.value
+    return (Prop.isProp(value) && value.initialName === this.initialName)
       || (PropCall.isPropCall(value) && value.concernsProp(this));
   }
 
