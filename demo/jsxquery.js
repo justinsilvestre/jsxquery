@@ -45846,7 +45846,7 @@ var jsxQuery =
 	
 	var _Element2 = _interopRequireDefault(_Element);
 	
-	var _Component = __webpack_require__(/*! ./classes/Component */ 692);
+	var _Component = __webpack_require__(/*! ./classes/Component */ 696);
 	
 	var _Component2 = _interopRequireDefault(_Component);
 	
@@ -45854,7 +45854,7 @@ var jsxQuery =
 	
 	var _classNames2 = _interopRequireDefault(_classNames);
 	
-	var _ConditionalValue = __webpack_require__(/*! ./classes/ConditionalValue */ 686);
+	var _ConditionalValue = __webpack_require__(/*! ./classes/ConditionalValue */ 690);
 	
 	var _ConditionalValue2 = _interopRequireDefault(_ConditionalValue);
 	
@@ -45941,19 +45941,19 @@ var jsxQuery =
 	
 	var _Child2 = _interopRequireDefault(_Child);
 	
-	var _Attribute = __webpack_require__(/*! ./Attribute */ 687);
+	var _Attribute = __webpack_require__(/*! ./Attribute */ 691);
 	
 	var _Attribute2 = _interopRequireDefault(_Attribute);
 	
-	var _EventListener = __webpack_require__(/*! ./EventListener */ 691);
+	var _EventListener = __webpack_require__(/*! ./EventListener */ 695);
 	
 	var _EventListener2 = _interopRequireDefault(_EventListener);
 	
-	var _supportedEvents = __webpack_require__(/*! ../supportedEvents */ 688);
+	var _supportedEvents = __webpack_require__(/*! ../supportedEvents */ 692);
 	
 	var EVENTS = _interopRequireWildcard(_supportedEvents);
 	
-	var _htmlElementData = __webpack_require__(/*! ../htmlElementData */ 690);
+	var _htmlElementData = __webpack_require__(/*! ../htmlElementData */ 694);
 	
 	function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj.default = obj; return newObj; } }
 	
@@ -46020,7 +46020,7 @@ var jsxQuery =
 	    }));
 	
 	    var dynamicTextContentChild = this.children.some(function (child) {
-	      return child.isContainer();
+	      return child.isDynamicText();
 	    });
 	    var idAttribute = this.getAttribute('id');
 	    if (dynamicTextContentChild && this.children.length > 1) throw new Error('Your <' + this.tagName + '> element has dynamic text content not wrapped in its own element');
@@ -46062,7 +46062,7 @@ var jsxQuery =
 	    key: 'hasDynamicInnerHTML',
 	    value: function hasDynamicInnerHTML() {
 	      return this.children.some(function (c) {
-	        return c.isContainer() && c.isRaw();
+	        return c.isDynamicText() && c.isRaw();
 	      });
 	    }
 	  }, {
@@ -63879,21 +63879,21 @@ var jsxQuery =
 	
 	var _createClass3 = _interopRequireDefault(_createClass2);
 	
-	var _typeof2 = __webpack_require__(/*! babel-runtime/helpers/typeof */ 639);
-	
-	var _typeof3 = _interopRequireDefault(_typeof2);
-	
 	var _Prop = __webpack_require__(/*! ./Prop */ 675);
 	
 	var _Prop2 = _interopRequireDefault(_Prop);
 	
-	var _PropCall = __webpack_require__(/*! ./PropCall */ 678);
+	var _PropCall = __webpack_require__(/*! ./PropCall */ 682);
 	
 	var _PropCall2 = _interopRequireDefault(_PropCall);
 	
-	var _ConditionalValue = __webpack_require__(/*! ./ConditionalValue */ 686);
+	var _ConditionalValue = __webpack_require__(/*! ./ConditionalValue */ 690);
 	
 	var _ConditionalValue2 = _interopRequireDefault(_ConditionalValue);
+	
+	var _Chainable = __webpack_require__(/*! ./Chainable */ 689);
+	
+	var _Chainable2 = _interopRequireDefault(_Chainable);
 	
 	var _Element = __webpack_require__(/*! ./Element */ 611);
 	
@@ -63904,19 +63904,28 @@ var jsxQuery =
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 	
 	function markupFromValue(value, indents) {
-	  return _Element2.default.isElement(value) ? value.markup(indents) : (0, _lodash.escape)(_Prop2.default.isProp(value) || _PropCall2.default.isPropCall(value) ? value.initialValue() : value);
+	  if (_Element2.default.isElement(value)) return value.markup(indents);
+	
+	  if (_Prop2.default.isProp(value)) return value.initialValue();
+	
+	  if (_PropCall2.default.isPropCall(value) || _Prop2.default.isProp(value)) return (0, _lodash.escape)(value.initialValue());
+	
+	  return (0, _lodash.escape)(value);
+	
+	  return _Element2.default.isElement(value) ? value.markup(indents) : _Prop2.default.isProp(value) || _PropCall2.default.isPropCall(value) ? value.initialValue() : (0, _lodash.escape)(value);
 	}
 	
 	var isDynamicValue = function isDynamicValue(val) {
-	  return (typeof val === 'undefined' ? 'undefined' : (0, _typeof3.default)(val)) === 'object' && _Prop2.default.isProp(val) || _PropCall2.default.isPropCall(val) || val._isChainable || _ConditionalValue2.default.isConditionalValue(val) && !val.isElement();
+	  return _Prop2.default.isProp(val) || _PropCall2.default.isPropCall(val) || _Chainable2.default.isChainable(val) || _ConditionalValue2.default.isConditionalValue(val) && !val.isElement();
 	};
 	
 	var Child = function () {
 	  function Child(value, isRaw) {
 	    (0, _classCallCheck3.default)(this, Child);
 	
-	    this._isArray = Array.isArray(value);
-	    if (this._isArray && !value.every(_Element2.default.isElement)) throw new Error('When providing an array as Element child, each value in the array must be an Element');
+	    this.value = value;
+	
+	    if (this.arrayValue() && !this.arrayValue().every(_Element2.default.isElement)) throw new Error('When providing an array as Element child, each value in the array must be an Element');
 	
 	    this._isConditional = _ConditionalValue2.default.isConditionalValue(value);
 	    if (this._isConditional) {
@@ -63933,27 +63942,27 @@ var jsxQuery =
 	      }))) throw new Error('The consequent and alternate in a dynamic conditional child must both be Elements or not Elements');
 	    }
 	
-	    // if (this._isCondi)
-	
-	    // if (this._isConditional && [consequent, alternate].filter(o=>o).every(Element.isElement))
-	    // ('The consequent and alternate in a dynamic conditional child must both be Elements or not Elements');
-	
-	    this._isContainer = isDynamicValue(value);
-	
-	    this.value = value;
+	    this._isDynamicText = isDynamicValue(value);
 	
 	    if (isRaw) this._isRaw = true;
 	  }
 	
 	  (0, _createClass3.default)(Child, [{
+	    key: 'arrayValue',
+	    value: function arrayValue() {
+	      if (Array.isArray(this.value)) return this.value;
+	
+	      if (_Prop2.default.isProp(this.value) && Array.isArray(this.value.transformed())) return this.value.transformed();
+	    }
+	  }, {
 	    key: 'isConditional',
 	    value: function isConditional() {
 	      return this._isConditional;
 	    }
 	  }, {
-	    key: 'isContainer',
-	    value: function isContainer() {
-	      return this._isContainer;
+	    key: 'isDynamicText',
+	    value: function isDynamicText() {
+	      return this._isDynamicText;
 	    }
 	  }, {
 	    key: 'isRaw',
@@ -63961,14 +63970,9 @@ var jsxQuery =
 	      return this._isRaw || false;
 	    }
 	  }, {
-	    key: 'isArray',
-	    value: function isArray() {
-	      return this._isArray;
-	    }
-	  }, {
 	    key: 'renderRaw',
 	    value: function renderRaw() {
-	      if (this.isContainer()) return this.value.initialValue();
+	      if (this.isDynamicText()) return this.value.initialValue();
 	
 	      return this.value;
 	    }
@@ -63977,15 +63981,15 @@ var jsxQuery =
 	    value: function render(indents) {
 	      if (this._isRaw) return this.renderRaw(indents);
 	
-	      if (this.isArray()) return this.value.map(function (e) {
+	      if (this.arrayValue()) return this.arrayValue().map(function (e) {
 	        return e.markup(indents);
 	      }).join('\n');
 	
-	      if (this.isContainer()) {
-	        return this.isConditional() ? this.value.render(indents) : markupFromValue(this.value.initialValue(), indents);
-	      }
-	
 	      if (this.isConditional()) return this.value.render(indents);
+	
+	      if (this.isDynamicText()) {
+	        return markupFromValue(this.value.initialValue(), indents);
+	      }
 	
 	      return markupFromValue(this.value, indents);
 	    }
@@ -64034,6 +64038,10 @@ var jsxQuery =
 	
 	var _assign2 = _interopRequireDefault(_assign);
 	
+	var _setPrototypeOf = __webpack_require__(/*! babel-runtime/core-js/object/set-prototype-of */ 678);
+	
+	var _setPrototypeOf2 = _interopRequireDefault(_setPrototypeOf);
+	
 	var _classCallCheck2 = __webpack_require__(/*! babel-runtime/helpers/classCallCheck */ 661);
 	
 	var _classCallCheck3 = _interopRequireDefault(_classCallCheck2);
@@ -64044,15 +64052,19 @@ var jsxQuery =
 	
 	var _lodash = __webpack_require__(/*! lodash */ 667);
 	
-	var _PropCall = __webpack_require__(/*! ./PropCall */ 678);
+	var _PropCall = __webpack_require__(/*! ./PropCall */ 682);
 	
 	var _PropCall2 = _interopRequireDefault(_PropCall);
 	
-	var _PropListTransform = __webpack_require__(/*! ./PropListTransform */ 685);
+	var _Chainable = __webpack_require__(/*! ./Chainable */ 689);
 	
-	var _PropListTransform2 = _interopRequireDefault(_PropListTransform);
+	var _Chainable2 = _interopRequireDefault(_Chainable);
+	
+	var _Element = __webpack_require__(/*! ./Element */ 611);
 	
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+	
+	var jsxQuery = { createElement: _Element.createElement };
 	
 	function isValidComponent(val) {
 	  return 'mutableProps' in val; // maybe shoudl test from callsfromhandler?
@@ -64087,20 +64099,10 @@ var jsxQuery =
 	
 	      return propCall;
 	    };
-	    var prop = (0, _lodash.isFunction)(value) ? functionProp : this;
 	
-	    (0, _assign2.default)(prop, {
-	      parent: parent,
-	      initialName: initialName,
-	      value: value,
-	      _wasLoaded: _wasLoaded,
-	      isMutable: Prop.prototype.isMutable, // should this be bound?
-	      wasLoaded: Prop.prototype.wasLoaded,
-	      map: Prop.prototype.map,
-	      isArray: Prop.prototype.isArray
-	    });
+	    var prop = (0, _lodash.isFunction)(value) ? (0, _setPrototypeOf2.default)(functionProp, Prop.prototype) : this;
 	
-	    return prop;
+	    return (0, _assign2.default)(prop, { parent: parent, initialName: initialName, value: value, _wasLoaded: _wasLoaded });
 	  }
 	
 	  (0, _createClass3.default)(Prop, [{
@@ -64124,23 +64126,20 @@ var jsxQuery =
 	  }, {
 	    key: 'map',
 	    value: function map(callback) {
-	      if (this.wasLoaded()) {
-	        var parent = this.parent;
-	        var initialName = this.initialName;
-	        var value = this.value;
-	        var wasLoaded = this.wasLoaded;
+	      if (!this.wasLoaded() && !this.isArray()) throw new Error('You cannot map over your prop \'' + this.initialName + '\' as it is not an array.');
 	
-	        return new _PropListTransform2.default({
-	          propValue: this.value,
-	          type: 'map',
-	          callback: callback,
-	          parent: parent, initialName: initialName, value: value, wasLoaded: wasLoaded
-	        });
-	      }
+	      var parent = this.parent;
+	      var initialName = this.initialName;
+	      var value = this.value;
+	      var _wasLoaded = this._wasLoaded;
 	
-	      if (!this.isArray()) throw new Error('You cannot map over your prop \'' + this.initialName + '\' as it is not an array.');
+	      var transforms = (this.transforms || []).concat({
+	        type: 'map',
+	        callback: callback
+	      });
 	
-	      return this.value.map(callback);
+	      this.parent.templates.push(callback);
+	      return (0, _assign2.default)(new Prop(parent, initialName, value, _wasLoaded), { transforms: transforms });
 	    }
 	  }, {
 	    key: 'valueSource',
@@ -64162,7 +64161,7 @@ var jsxQuery =
 	  }, {
 	    key: 'concerns',
 	    value: function concerns(value) {
-	      return value === this || _PropCall2.default.isPropCall(value) && value.concernsProp(this);
+	      return Prop.isProp(value) && value.value === this.value || _PropCall2.default.isPropCall(value) && value.concernsProp(this);
 	    }
 	
 	    // need to get value from presence/absence of element/class, or child content. (conditional stuff.)
@@ -64185,6 +64184,22 @@ var jsxQuery =
 	    key: 'initialValue',
 	    value: function initialValue() {
 	      return this.value;
+	    }
+	  }, {
+	    key: 'transformed',
+	    value: function transformed() {
+	      if (!this.transforms) return;
+	
+	      if (!this.wasLoaded()) return this.value.map(this.transforms[0].callback);
+	
+	      var loopVar = this.initialName + 'Item';
+	      var varStatus = this.transforms[0].callback.length > 1 ? this.initialName + 'Index' : false;
+	      var content = this.transforms[0].callback(new _Chainable2.default(loopVar), new _Chainable2.default(varStatus).loop);
+	      return jsxQuery.createElement(
+	        'c:forEach',
+	        { 'var': loopVar, items: this.value, varStatus: varStatus },
+	        content
+	      );
 	    }
 	  }], [{
 	    key: 'isProp',
@@ -64223,6 +64238,69 @@ var jsxQuery =
 
 /***/ },
 /* 678 */
+/*!************************************************************!*\
+  !*** ./~/babel-runtime/core-js/object/set-prototype-of.js ***!
+  \************************************************************/
+/***/ function(module, exports, __webpack_require__) {
+
+	module.exports = { "default": __webpack_require__(/*! core-js/library/fn/object/set-prototype-of */ 679), __esModule: true };
+
+/***/ },
+/* 679 */
+/*!*********************************************************!*\
+  !*** ./~/core-js/library/fn/object/set-prototype-of.js ***!
+  \*********************************************************/
+/***/ function(module, exports, __webpack_require__) {
+
+	__webpack_require__(/*! ../../modules/es6.object.set-prototype-of */ 680);
+	module.exports = __webpack_require__(/*! ../../modules/_core */ 6).Object.setPrototypeOf;
+
+/***/ },
+/* 680 */
+/*!******************************************************************!*\
+  !*** ./~/core-js/library/modules/es6.object.set-prototype-of.js ***!
+  \******************************************************************/
+/***/ function(module, exports, __webpack_require__) {
+
+	// 19.1.3.19 Object.setPrototypeOf(O, proto)
+	var $export = __webpack_require__(/*! ./_export */ 4);
+	$export($export.S, 'Object', {setPrototypeOf: __webpack_require__(/*! ./_set-proto */ 681).set});
+
+/***/ },
+/* 681 */
+/*!*************************************************!*\
+  !*** ./~/core-js/library/modules/_set-proto.js ***!
+  \*************************************************/
+/***/ function(module, exports, __webpack_require__) {
+
+	// Works with __proto__ only. Old v8 can't work with null proto objects.
+	/* eslint-disable no-proto */
+	var isObject = __webpack_require__(/*! ./_is-object */ 12)
+	  , anObject = __webpack_require__(/*! ./_an-object */ 11);
+	var check = function(O, proto){
+	  anObject(O);
+	  if(!isObject(proto) && proto !== null)throw TypeError(proto + ": can't set as prototype!");
+	};
+	module.exports = {
+	  set: Object.setPrototypeOf || ('__proto__' in {} ? // eslint-disable-line
+	    function(test, buggy, set){
+	      try {
+	        set = __webpack_require__(/*! ./_ctx */ 7)(Function.call, __webpack_require__(/*! ./_object-gopd */ 657).f(Object.prototype, '__proto__').set, 2);
+	        set(test, []);
+	        buggy = !(test instanceof Array);
+	      } catch(e){ buggy = true; }
+	      return function setPrototypeOf(O, proto){
+	        check(O, proto);
+	        if(buggy)O.__proto__ = proto;
+	        else set(O, proto);
+	        return O;
+	      };
+	    }({}, false) : undefined),
+	  check: check
+	};
+
+/***/ },
+/* 682 */
 /*!*********************************!*\
   !*** ./src/classes/PropCall.js ***!
   \*********************************/
@@ -64258,7 +64336,7 @@ var jsxQuery =
 	
 	var _Prop2 = _interopRequireDefault(_Prop);
 	
-	var _stateChangeEffects = __webpack_require__(/*! ../stateChangeEffects */ 679);
+	var _stateChangeEffects = __webpack_require__(/*! ../stateChangeEffects */ 683);
 	
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 	
@@ -64325,7 +64403,7 @@ var jsxQuery =
 	exports.default = PropCall;
 
 /***/ },
-/* 679 */
+/* 683 */
 /*!***********************************!*\
   !*** ./src/stateChangeEffects.js ***!
   \***********************************/
@@ -64352,7 +64430,7 @@ var jsxQuery =
 	exports.jQueryArgumentFrom = jQueryArgumentFrom;
 	exports.default = stateChangeEffects;
 	
-	var _lodash = __webpack_require__(/*! lodash.flatMap */ 680);
+	var _lodash = __webpack_require__(/*! lodash.flatMap */ 684);
 	
 	var _lodash2 = _interopRequireDefault(_lodash);
 	
@@ -64360,17 +64438,19 @@ var jsxQuery =
 	
 	var _Prop2 = _interopRequireDefault(_Prop);
 	
-	var _PropCall = __webpack_require__(/*! ./classes/PropCall */ 678);
+	var _PropCall = __webpack_require__(/*! ./classes/PropCall */ 682);
 	
 	var _PropCall2 = _interopRequireDefault(_PropCall);
 	
-	var _Event = __webpack_require__(/*! ./classes/Event */ 681);
+	var _Event = __webpack_require__(/*! ./classes/Event */ 685);
 	
 	var _Event2 = _interopRequireDefault(_Event);
 	
-	var _lodash3 = __webpack_require__(/*! lodash.pickby */ 683);
+	var _lodash3 = __webpack_require__(/*! lodash.pickby */ 687);
 	
 	var _lodash4 = _interopRequireDefault(_lodash3);
+	
+	var _lodash5 = __webpack_require__(/*! lodash */ 667);
 	
 	var _Element = __webpack_require__(/*! ./classes/Element */ 611);
 	
@@ -64381,7 +64461,9 @@ var jsxQuery =
 	function jQueryArgumentFrom(arg) {
 	  if (_Event2.default.isEvent(arg) || _Prop2.default.isProp(arg) || _PropCall2.default.isPropCall(arg)) return arg.toJQueryCode();
 	
-	  if (arg && (typeof arg === 'undefined' ? 'undefined' : (0, _typeof3.default)(arg)) === 'object') return arg;
+	  if (arg && (typeof arg === 'undefined' ? 'undefined' : (0, _typeof3.default)(arg)) === 'object') return '{ ' + (0, _lodash5.transform)(arg, function (result, val, key) {
+	    result.push((0, _stringify2.default)(key) + ':' + jQueryArgumentFrom(val));
+	  }, []).join(', ') + ' }';
 	
 	  return typeof arg === 'boolean' ? arg : (0, _stringify2.default)(arg);
 	}
@@ -64406,7 +64488,7 @@ var jsxQuery =
 	
 	function extractDynamicTextChildrenFrom(element, targetId, mutatedProp, args, actionType) {
 	  return element.children.filter(function (c) {
-	    return c.isContainer() && mutatedProp.concerns(c.value);
+	    return c.isDynamicText() && !c.arrayValue() && mutatedProp.concerns(c.value);
 	  }).map(function (c) {
 	    return {
 	      elementId: element.getIdForProp(mutatedProp.initialName, 'dynamic content'),
@@ -64483,25 +64565,39 @@ var jsxQuery =
 	  }, []);
 	}
 	
-	// function extractDynamicListItemsFrom(element, targetId, mutatedProp, args, actionType) {
-	//   const relevant = element.children.find(c => c.isContainer() && c.value.isArray());
-	// // maybe element keeps track if prop was mapped + map function
-	// // maybe prop accumulates appearances and map function
-	//   return relevant ? {
-	//     elementId: element.getIdForProp(mutatedProp.initialName, 'list'),
-	//     method: 'append',
-	//     newValue: mutatedProp.
-	//   } : [];
-	// }
+	function extractDynamicListItemsFrom(element, targetId, mutatedProp, args, actionType) {
+	  var relevant = element.children.find(function (c) {
+	    return c.isDynamicText() && mutatedProp.concerns(c.value) && 'transforms' in c.value;
+	  }); // maybe dynamicText is a bad name?
+	  if (!relevant) return [];
+	
+	  if (relevant.value.transforms.find(function (t) {
+	    return t.type === 'map';
+	  })) return {
+	    elementId: element.getIdForProp(mutatedProp.initialName, 'list'),
+	    method: 'append',
+	    callbackIndex: relevant.value.parent.templates.indexOf(relevant.value.transforms[0].callback),
+	    newValue: jQueryArgumentFrom(args[0])
+	  };
+	
+	  // maybe element keeps track if prop was mapped + map function
+	  // maybe prop accumulates appearances and map function
+	  // do something different here depending on map, filter, sort, whatever
+	  // return {
+	  //   elementId: element.getIdForProp(mutatedProp.initialName, 'list'),
+	  //   method: 'append',
+	  //   newValue: mutatedProp.toJQueryCode() + '(' + jQueryArgumentFrom(args[1]) + ')'
+	  // };
+	}
 	
 	function stateChangeEffects(element, targetId, mutatedProp, args, actionType) {
 	  return (0, _lodash2.default)(element.elementNodes(), function (el) {
-	    return [].concat(extractDynamicClassNamesFrom(el, targetId, mutatedProp, args, actionType), extractDynamicTextChildrenFrom(el, targetId, mutatedProp, args, actionType), extractConditionalDisplayChildrenFrom(el, targetId, mutatedProp, args, actionType), extractConditionalTextChildrenFrom(el, targetId, mutatedProp, args, actionType), extractDynamicValChildrenFrom(el, targetId, mutatedProp, args, actionType), extractDynamicAttributesFrom(el, targetId, mutatedProp, args, actionType));
+	    return [].concat(extractDynamicClassNamesFrom(el, targetId, mutatedProp, args, actionType), extractDynamicTextChildrenFrom(el, targetId, mutatedProp, args, actionType), extractConditionalDisplayChildrenFrom(el, targetId, mutatedProp, args, actionType), extractConditionalTextChildrenFrom(el, targetId, mutatedProp, args, actionType), extractDynamicValChildrenFrom(el, targetId, mutatedProp, args, actionType), extractDynamicAttributesFrom(el, targetId, mutatedProp, args, actionType), extractDynamicListItemsFrom(el, targetId, mutatedProp, args, actionType));
 	  });
 	}
 
 /***/ },
-/* 680 */
+/* 684 */
 /*!***********************************!*\
   !*** ./~/lodash.flatMap/index.js ***!
   \***********************************/
@@ -64548,7 +64644,7 @@ var jsxQuery =
 
 
 /***/ },
-/* 681 */
+/* 685 */
 /*!******************************!*\
   !*** ./src/classes/Event.js ***!
   \******************************/
@@ -64576,7 +64672,7 @@ var jsxQuery =
 	
 	var _createClass3 = _interopRequireDefault(_createClass2);
 	
-	var _harmonyProxy = __webpack_require__(/*! harmony-proxy */ 682);
+	var _harmonyProxy = __webpack_require__(/*! harmony-proxy */ 686);
 	
 	var _harmonyProxy2 = _interopRequireDefault(_harmonyProxy);
 	
@@ -64646,7 +64742,7 @@ var jsxQuery =
 	exports.default = Event;
 
 /***/ },
-/* 682 */
+/* 686 */
 /*!**********************************!*\
   !*** ./~/harmony-proxy/index.js ***!
   \**********************************/
@@ -64766,7 +64862,7 @@ var jsxQuery =
 
 
 /***/ },
-/* 683 */
+/* 687 */
 /*!**********************************!*\
   !*** ./~/lodash.pickby/index.js ***!
   \**********************************/
@@ -64781,7 +64877,7 @@ var jsxQuery =
 	 * Copyright Jeremy Ashkenas, DocumentCloud and Investigative Reporters & Editors
 	 */
 	var baseIteratee = __webpack_require__(/*! lodash._baseiteratee */ 672),
-	    keysIn = __webpack_require__(/*! lodash.keysin */ 684);
+	    keysIn = __webpack_require__(/*! lodash.keysin */ 688);
 	
 	/**
 	 * Appends the elements of `values` to `array`.
@@ -64965,7 +65061,7 @@ var jsxQuery =
 
 
 /***/ },
-/* 684 */
+/* 688 */
 /*!**********************************!*\
   !*** ./~/lodash.keysin/index.js ***!
   \**********************************/
@@ -65467,10 +65563,10 @@ var jsxQuery =
 	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(/*! ./../webpack/buildin/module.js */ 324)(module), (function() { return this; }())))
 
 /***/ },
-/* 685 */
-/*!******************************************!*\
-  !*** ./src/classes/PropListTransform.js ***!
-  \******************************************/
+/* 689 */
+/*!**********************************!*\
+  !*** ./src/classes/Chainable.js ***!
+  \**********************************/
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -65483,29 +65579,25 @@ var jsxQuery =
 	
 	var _assign2 = _interopRequireDefault(_assign);
 	
-	var _classCallCheck2 = __webpack_require__(/*! babel-runtime/helpers/classCallCheck */ 661);
+	var _typeof2 = __webpack_require__(/*! babel-runtime/helpers/typeof */ 639);
 	
-	var _classCallCheck3 = _interopRequireDefault(_classCallCheck2);
-	
-	var _createClass2 = __webpack_require__(/*! babel-runtime/helpers/createClass */ 662);
-	
-	var _createClass3 = _interopRequireDefault(_createClass2);
+	var _typeof3 = _interopRequireDefault(_typeof2);
 	
 	var _toConsumableArray2 = __webpack_require__(/*! babel-runtime/helpers/toConsumableArray */ 612);
 	
 	var _toConsumableArray3 = _interopRequireDefault(_toConsumableArray2);
 	
-	var _harmonyProxy = __webpack_require__(/*! harmony-proxy */ 682);
+	var _harmonyProxy = __webpack_require__(/*! harmony-proxy */ 686);
 	
 	var _harmonyProxy2 = _interopRequireDefault(_harmonyProxy);
 	
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 	
 	function getHandler(target, name) {
-	  return name in target ? target[name] : chainable.apply(undefined, (0, _toConsumableArray3.default)(target.chain.concat(name)));
+	  return name in target ? target[name] : new (Function.prototype.bind.apply(Chainable, [null].concat((0, _toConsumableArray3.default)(target.chain.concat(name)))))();
 	}
 	
-	function chainable() {
+	function Chainable() {
 	  for (var _len = arguments.length, chain = Array(_len), _key = 0; _key < _len; _key++) {
 	    chain[_key] = arguments[_key];
 	  }
@@ -65520,39 +65612,14 @@ var jsxQuery =
 	  });
 	}
 	
-	var PropListTransform = function () {
-	  function PropListTransform(transform) {
-	    (0, _classCallCheck3.default)(this, PropListTransform);
+	function isChainable(val) {
+	  return val && (typeof val === 'undefined' ? 'undefined' : (0, _typeof3.default)(val)) === 'object' && 'chain' in val && 'initialValue' in val;
+	}
 	
-	    this.transformType = transform.type;
-	    var callback = transform.callback;
-	    var parent = transform.parent;
-	    var initialName = transform.initialName;
-	    var value = transform.value;
-	    var wasLoaded = transform.wasLoaded;
-	
-	    (0, _assign2.default)(this, { callback: callback, parent: parent, initialName: initialName, value: value, wasLoaded: wasLoaded });
-	  }
-	
-	  (0, _createClass3.default)(PropListTransform, [{
-	    key: 'initialValue',
-	    value: function initialValue() {
-	      var loopVar = this.initialName + 'Item';
-	      var varStatus = this.callback.length > 1 ? this.initialName + 'Index' : false;
-	      return jsxQuery.createElement(
-	        'c:forEach',
-	        { 'var': loopVar, items: this.value, varStatus: varStatus },
-	        this.callback(chainable(loopVar), chainable(varStatus).loop)
-	      );
-	    }
-	  }]);
-	  return PropListTransform;
-	}();
-	
-	exports.default = PropListTransform;
+	exports.default = (0, _assign2.default)(Chainable, { isChainable: isChainable });
 
 /***/ },
-/* 686 */
+/* 690 */
 /*!*****************************************!*\
   !*** ./src/classes/ConditionalValue.js ***!
   \*****************************************/
@@ -65584,11 +65651,11 @@ var jsxQuery =
 	
 	var _Prop2 = _interopRequireDefault(_Prop);
 	
-	var _PropCall = __webpack_require__(/*! ./PropCall */ 678);
+	var _PropCall = __webpack_require__(/*! ./PropCall */ 682);
 	
 	var _PropCall2 = _interopRequireDefault(_PropCall);
 	
-	var _Attribute = __webpack_require__(/*! ./Attribute */ 687);
+	var _Attribute = __webpack_require__(/*! ./Attribute */ 691);
 	
 	var _Attribute2 = _interopRequireDefault(_Attribute);
 	
@@ -65598,7 +65665,7 @@ var jsxQuery =
 	
 	var _lodash = __webpack_require__(/*! lodash */ 667);
 	
-	var _jstlHelpers = __webpack_require__(/*! ../jstlHelpers */ 689);
+	var _jstlHelpers = __webpack_require__(/*! ../jstlHelpers */ 693);
 	
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 	
@@ -65675,7 +65742,7 @@ var jsxQuery =
 	exports.default = ConditionalValue;
 
 /***/ },
-/* 687 */
+/* 691 */
 /*!**********************************!*\
   !*** ./src/classes/Attribute.js ***!
   \**********************************/
@@ -65717,25 +65784,25 @@ var jsxQuery =
 	
 	var _lodash = __webpack_require__(/*! lodash */ 667);
 	
-	var _supportedEvents = __webpack_require__(/*! ../supportedEvents */ 688);
+	var _supportedEvents = __webpack_require__(/*! ../supportedEvents */ 692);
 	
 	var _supportedEvents2 = _interopRequireDefault(_supportedEvents);
 	
-	var _jstlHelpers = __webpack_require__(/*! ../jstlHelpers */ 689);
+	var _jstlHelpers = __webpack_require__(/*! ../jstlHelpers */ 693);
 	
 	var _Prop = __webpack_require__(/*! ./Prop */ 675);
 	
 	var _Prop2 = _interopRequireDefault(_Prop);
 	
-	var _PropCall = __webpack_require__(/*! ./PropCall */ 678);
+	var _PropCall = __webpack_require__(/*! ./PropCall */ 682);
 	
 	var _PropCall2 = _interopRequireDefault(_PropCall);
 	
-	var _ConditionalValue = __webpack_require__(/*! ./ConditionalValue */ 686);
+	var _ConditionalValue = __webpack_require__(/*! ./ConditionalValue */ 690);
 	
 	var _ConditionalValue2 = _interopRequireDefault(_ConditionalValue);
 	
-	var _htmlElementData = __webpack_require__(/*! ../htmlElementData */ 690);
+	var _htmlElementData = __webpack_require__(/*! ../htmlElementData */ 694);
 	
 	var _htmlElementData2 = _interopRequireDefault(_htmlElementData);
 	
@@ -65761,7 +65828,7 @@ var jsxQuery =
 	    this.name = name;
 	    this.value = value;
 	    this._isConditional = _ConditionalValue2.default.isConditionalValue(value);
-	    this._isContainer = _Prop2.default.isProp(value) || _PropCall2.default.isPropCall(value) || (typeof value === 'undefined' ? 'undefined' : (0, _typeof3.default)(value)) === 'object' && 'initialValue' in value;
+	    this._isContainer = _Prop2.default.isProp(value) || _PropCall2.default.isPropCall(value);
 	
 	    if (this.isEventHandler() && !(0, _lodash.isFunction)(this.value)) throw new Error('Your \'' + name + ' attribute needs a function value. Did you forget to wrap an action call in a function?');
 	  }
@@ -65910,7 +65977,7 @@ var jsxQuery =
 	exports.default = Attribute;
 
 /***/ },
-/* 688 */
+/* 692 */
 /*!********************************!*\
   !*** ./src/supportedEvents.js ***!
   \********************************/
@@ -65940,7 +66007,7 @@ var jsxQuery =
 	module.exports = events;
 
 /***/ },
-/* 689 */
+/* 693 */
 /*!****************************!*\
   !*** ./src/jstlHelpers.js ***!
   \****************************/
@@ -65978,7 +66045,7 @@ var jsxQuery =
 	}
 
 /***/ },
-/* 690 */
+/* 694 */
 /*!********************************!*\
   !*** ./src/htmlElementData.js ***!
   \********************************/
@@ -65996,7 +66063,7 @@ var jsxQuery =
 	var ATTRIBUTES_TO_TREAT_WITH_PROP_METHOD = exports.ATTRIBUTES_TO_TREAT_WITH_PROP_METHOD = ['async', 'autofocus', 'checked', 'location', 'multiple', 'readOnly', 'selected'];
 
 /***/ },
-/* 691 */
+/* 695 */
 /*!**************************************!*\
   !*** ./src/classes/EventListener.js ***!
   \**************************************/
@@ -66033,7 +66100,7 @@ var jsxQuery =
 	exports.default = EventListener;
 
 /***/ },
-/* 692 */
+/* 696 */
 /*!**********************************!*\
   !*** ./src/classes/Component.js ***!
   \**********************************/
@@ -66045,15 +66112,15 @@ var jsxQuery =
 	  value: true
 	});
 	
-	var _getPrototypeOf = __webpack_require__(/*! babel-runtime/core-js/object/get-prototype-of */ 693);
+	var _getPrototypeOf = __webpack_require__(/*! babel-runtime/core-js/object/get-prototype-of */ 697);
 	
 	var _getPrototypeOf2 = _interopRequireDefault(_getPrototypeOf);
 	
-	var _possibleConstructorReturn2 = __webpack_require__(/*! babel-runtime/helpers/possibleConstructorReturn */ 696);
+	var _possibleConstructorReturn2 = __webpack_require__(/*! babel-runtime/helpers/possibleConstructorReturn */ 700);
 	
 	var _possibleConstructorReturn3 = _interopRequireDefault(_possibleConstructorReturn2);
 	
-	var _inherits2 = __webpack_require__(/*! babel-runtime/helpers/inherits */ 697);
+	var _inherits2 = __webpack_require__(/*! babel-runtime/helpers/inherits */ 701);
 	
 	var _inherits3 = _interopRequireDefault(_inherits2);
 	
@@ -66085,7 +66152,7 @@ var jsxQuery =
 	
 	var _lodash = __webpack_require__(/*! lodash */ 667);
 	
-	var _supportedEvents = __webpack_require__(/*! ../supportedEvents */ 688);
+	var _supportedEvents = __webpack_require__(/*! ../supportedEvents */ 692);
 	
 	var EVENTS = _interopRequireWildcard(_supportedEvents);
 	
@@ -66097,7 +66164,7 @@ var jsxQuery =
 	
 	var _Actions2 = _interopRequireDefault(_Actions);
 	
-	var _stateChangeEffects = __webpack_require__(/*! ../stateChangeEffects */ 679);
+	var _stateChangeEffects = __webpack_require__(/*! ../stateChangeEffects */ 683);
 	
 	var _stateChangeEffects2 = _interopRequireDefault(_stateChangeEffects);
 	
@@ -66109,7 +66176,7 @@ var jsxQuery =
 	
 	var _setup2 = _interopRequireDefault(_setup);
 	
-	var _Event = __webpack_require__(/*! ./Event */ 681);
+	var _Event = __webpack_require__(/*! ./Event */ 685);
 	
 	var _Event2 = _interopRequireDefault(_Event);
 	
@@ -66150,6 +66217,7 @@ var jsxQuery =
 	    this.loadedProps = (0, _keys2.default)(safeLoadedState);
 	
 	    this.callsFromHandler = [];
+	    this.templates = [];
 	  }
 	
 	  (0, _createClass3.default)(Component, [{
@@ -66163,6 +66231,7 @@ var jsxQuery =
 	    value: function jQuery() {
 	      var _this = this;
 	
+	      console.log(this.templates);
 	      var propMethodStrings = this.propMethodStrings();
 	      var propMethodsChunk = 'var propMethods = {\n\t' + (0, _keys2.default)(propMethodStrings).map(function (propMethodName) {
 	        return '\t' + propMethodName + ': ' + propMethodStrings[propMethodName].replace('\n', '\t');
@@ -66170,7 +66239,12 @@ var jsxQuery =
 	        // THIS IS SLOPPY. ANY NEWLINES IN A TEMPLATE STRING WILL BE COUNTED AS WELL.
 	        //
 	        //
-	      }).join(',\n') + '\n};' + '\nObject.assign(module.exports, propMethods)\n';
+	      }).join(',\n') + '\n};' + '\nObject.assign(module.exports, propMethods);\n';
+	
+	      var templateMethodStrings = this.templates.map(function (t) {
+	        return t.toString();
+	      }).join(',\n');
+	      var templateMethodsChunk = 'var templates = [' + templateMethodStrings + '].map((fn) => (...args) => fn(...args).render());\n\n';
 	
 	      var jQueryChange = function jQueryChange(actionCall, targetId) {
 	        var actionType = actionCall.actionType;
@@ -66198,7 +66272,7 @@ var jsxQuery =
 	        }).join('\n  ') + '\n});';
 	      });
 	
-	      return [propMethodsChunk].concat((0, _toConsumableArray3.default)(eventListeners)).join('\n\n');
+	      return [propMethodsChunk, templateMethodsChunk].concat((0, _toConsumableArray3.default)(eventListeners)).join('\n\n');
 	    }
 	
 	    // these should be namespaced with component names. so then maybe we can just toString the methods
@@ -66304,26 +66378,26 @@ var jsxQuery =
 	}
 
 /***/ },
-/* 693 */
+/* 697 */
 /*!************************************************************!*\
   !*** ./~/babel-runtime/core-js/object/get-prototype-of.js ***!
   \************************************************************/
 /***/ function(module, exports, __webpack_require__) {
 
-	module.exports = { "default": __webpack_require__(/*! core-js/library/fn/object/get-prototype-of */ 694), __esModule: true };
+	module.exports = { "default": __webpack_require__(/*! core-js/library/fn/object/get-prototype-of */ 698), __esModule: true };
 
 /***/ },
-/* 694 */
+/* 698 */
 /*!*********************************************************!*\
   !*** ./~/core-js/library/fn/object/get-prototype-of.js ***!
   \*********************************************************/
 /***/ function(module, exports, __webpack_require__) {
 
-	__webpack_require__(/*! ../../modules/es6.object.get-prototype-of */ 695);
+	__webpack_require__(/*! ../../modules/es6.object.get-prototype-of */ 699);
 	module.exports = __webpack_require__(/*! ../../modules/_core */ 6).Object.getPrototypeOf;
 
 /***/ },
-/* 695 */
+/* 699 */
 /*!******************************************************************!*\
   !*** ./~/core-js/library/modules/es6.object.get-prototype-of.js ***!
   \******************************************************************/
@@ -66340,7 +66414,7 @@ var jsxQuery =
 	});
 
 /***/ },
-/* 696 */
+/* 700 */
 /*!**************************************************************!*\
   !*** ./~/babel-runtime/helpers/possibleConstructorReturn.js ***!
   \**************************************************************/
@@ -66365,7 +66439,7 @@ var jsxQuery =
 	};
 
 /***/ },
-/* 697 */
+/* 701 */
 /*!*********************************************!*\
   !*** ./~/babel-runtime/helpers/inherits.js ***!
   \*********************************************/
@@ -66375,7 +66449,7 @@ var jsxQuery =
 	
 	exports.__esModule = true;
 	
-	var _setPrototypeOf = __webpack_require__(/*! babel-runtime/core-js/object/set-prototype-of */ 698);
+	var _setPrototypeOf = __webpack_require__(/*! babel-runtime/core-js/object/set-prototype-of */ 678);
 	
 	var _setPrototypeOf2 = _interopRequireDefault(_setPrototypeOf);
 	
@@ -66403,69 +66477,6 @@ var jsxQuery =
 	    }
 	  });
 	  if (superClass) _setPrototypeOf2.default ? (0, _setPrototypeOf2.default)(subClass, superClass) : subClass.__proto__ = superClass;
-	};
-
-/***/ },
-/* 698 */
-/*!************************************************************!*\
-  !*** ./~/babel-runtime/core-js/object/set-prototype-of.js ***!
-  \************************************************************/
-/***/ function(module, exports, __webpack_require__) {
-
-	module.exports = { "default": __webpack_require__(/*! core-js/library/fn/object/set-prototype-of */ 699), __esModule: true };
-
-/***/ },
-/* 699 */
-/*!*********************************************************!*\
-  !*** ./~/core-js/library/fn/object/set-prototype-of.js ***!
-  \*********************************************************/
-/***/ function(module, exports, __webpack_require__) {
-
-	__webpack_require__(/*! ../../modules/es6.object.set-prototype-of */ 700);
-	module.exports = __webpack_require__(/*! ../../modules/_core */ 6).Object.setPrototypeOf;
-
-/***/ },
-/* 700 */
-/*!******************************************************************!*\
-  !*** ./~/core-js/library/modules/es6.object.set-prototype-of.js ***!
-  \******************************************************************/
-/***/ function(module, exports, __webpack_require__) {
-
-	// 19.1.3.19 Object.setPrototypeOf(O, proto)
-	var $export = __webpack_require__(/*! ./_export */ 4);
-	$export($export.S, 'Object', {setPrototypeOf: __webpack_require__(/*! ./_set-proto */ 701).set});
-
-/***/ },
-/* 701 */
-/*!*************************************************!*\
-  !*** ./~/core-js/library/modules/_set-proto.js ***!
-  \*************************************************/
-/***/ function(module, exports, __webpack_require__) {
-
-	// Works with __proto__ only. Old v8 can't work with null proto objects.
-	/* eslint-disable no-proto */
-	var isObject = __webpack_require__(/*! ./_is-object */ 12)
-	  , anObject = __webpack_require__(/*! ./_an-object */ 11);
-	var check = function(O, proto){
-	  anObject(O);
-	  if(!isObject(proto) && proto !== null)throw TypeError(proto + ": can't set as prototype!");
-	};
-	module.exports = {
-	  set: Object.setPrototypeOf || ('__proto__' in {} ? // eslint-disable-line
-	    function(test, buggy, set){
-	      try {
-	        set = __webpack_require__(/*! ./_ctx */ 7)(Function.call, __webpack_require__(/*! ./_object-gopd */ 657).f(Object.prototype, '__proto__').set, 2);
-	        set(test, []);
-	        buggy = !(test instanceof Array);
-	      } catch(e){ buggy = true; }
-	      return function setPrototypeOf(O, proto){
-	        check(O, proto);
-	        if(buggy)O.__proto__ = proto;
-	        else set(O, proto);
-	        return O;
-	      };
-	    }({}, false) : undefined),
-	  check: check
 	};
 
 /***/ },
@@ -66540,7 +66551,7 @@ var jsxQuery =
 	
 	var _Prop2 = _interopRequireDefault(_Prop);
 	
-	var _PropCall = __webpack_require__(/*! ./PropCall */ 678);
+	var _PropCall = __webpack_require__(/*! ./PropCall */ 682);
 	
 	var _PropCall2 = _interopRequireDefault(_PropCall);
 	
@@ -66947,7 +66958,7 @@ var jsxQuery =
 	        return '$(\'#' + elementId + '\').prop(\'' + effectData.attributeName + '\', ' + newValue + ');';
 	
 	      case 'append':
-	        return '$(\'#' + elementId + '\').append(' + effectData.newValue + ');';
+	        return '$(\'#' + elementId + '\').append(templates[' + effectData.callbackIndex + '](' + newValue + '));';
 	    }
 	  }).join('\n\t');
 	}
@@ -67081,7 +67092,7 @@ var jsxQuery =
 	
 	var _Element2 = _interopRequireDefault(_Element);
 	
-	var _ConditionalValue = __webpack_require__(/*! ./classes/ConditionalValue */ 686);
+	var _ConditionalValue = __webpack_require__(/*! ./classes/ConditionalValue */ 690);
 	
 	var _ConditionalValue2 = _interopRequireDefault(_ConditionalValue);
 	
@@ -67090,9 +67101,9 @@ var jsxQuery =
 	var dependsOnProp = function dependsOnProp(val, prop) {
 	  return val === prop || _ConditionalValue2.default.isConditionalValue(val) && val.test === prop;
 	};
-	var containerChildAsProp = function containerChildAsProp(el, prop) {
+	var dynamicTextChild = function dynamicTextChild(el, prop) {
 	  return el.children.find(function (c) {
-	    return c.isContainer() && dependsOnProp(c.value, prop);
+	    return c.isDynamicText() && dependsOnProp(c.value, prop);
 	  });
 	};
 	var attributeAsProp = function attributeAsProp(el, prop) {
@@ -67123,7 +67134,7 @@ var jsxQuery =
 	
 	exports.default = {
 	  textChild: function textChild(element, prop) {
-	    var child = containerChildAsProp(element, prop);
+	    var child = dynamicTextChild(element, prop);
 	    return child && {
 	      element: element,
 	      method: child.isRaw() ? 'html' : 'text',
