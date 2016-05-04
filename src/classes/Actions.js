@@ -5,12 +5,29 @@ import ACTIONS from '../supportedActions';
 
 var getTracker;
 
+function propAffixes(actionType) {
+  switch (actionType) {
+  case 'show':
+  case 'hide':
+    return { suffix: 'Showing' };
+  case 'add':
+    return { suffix: 'List' };
+  default:
+    return {};
+  }
+}
+
+function mutatedPropFrom(actionType, restOfActionName) {
+  const { prefix, suffix } = propAffixes(actionType);
+  return [prefix, restOfActionName, suffix].filter(s=>s).join('');
+}
+
 function actionData(actionName) {
   const actionMatch = actionName.match(`(${ACTIONS.join('|')})([A-Z].+)`);
 
   if (actionMatch) {
     const actionType = actionMatch[1];
-    const mutatedProp = actionMatch[2] + (contains(['show', 'hide'], actionType) ? 'Showing' : '');
+    const mutatedProp = mutatedPropFrom(actionType, actionMatch[2]);
     const lowerCaseState = mutatedProp.charAt(0).toLowerCase() + mutatedProp.slice(1);
     return ([actionType, lowerCaseState]);
   }

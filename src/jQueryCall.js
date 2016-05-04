@@ -37,7 +37,7 @@ export default function jQueryCall(stateChangeEffects) {
       return `$('#${elementId}').prop('${effectData.attributeName}', ${newValue});`;
 
     case ('append'):
-      return `$('#${elementId}').append(${effectData.newValue});`;
+      return `$('#${elementId}').append(templates[${effectData.callbackIndex}](${newValue}));`;
     }
   }).join('\n\t');
 }

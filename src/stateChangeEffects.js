@@ -3,6 +3,7 @@ import Prop from './classes/Prop';
 import PropCall from './classes/PropCall';
 import Event from './classes/Event';
 import pickBy from 'lodash.pickby';
+import { transform } from 'lodash';
 import Element from './classes/Element';
 
 export function jQueryArgumentFrom(arg) {
@@ -12,7 +13,9 @@ export function jQueryArgumentFrom(arg) {
     return arg.toJQueryCode();
 
   if (arg && typeof arg === 'object')
-    return arg;
+    return '{ ' + transform(arg, (result, val, key) => {
+      result.push(JSON.stringify(key) + ':' + jQueryArgumentFrom(val))
+    }, []).join(', ') + ' }';
 
   return typeof arg === 'boolean' ? arg : JSON.stringify(arg);
 }
@@ -34,7 +37,7 @@ function extractDynamicClassNamesFrom(element, targetId, mutatedProp, args, acti
 }
 
 function extractDynamicTextChildrenFrom(element, targetId, mutatedProp, args, actionType) {
-  return element.children.filter(c => c.isDynamicText() && mutatedProp.concerns(c.value)).map(c => ({
+  return element.children.filter(c => c.isDynamicText() && !c.arrayValue() && mutatedProp.concerns(c.value)).map(c => ({
     elementId: element.getIdForProp(mutatedProp.initialName, 'dynamic content'),
     method: c.isRaw() ? 'html' : 'text',
     // newValue: jQueryArgumentFrom(c.value),
@@ -103,16 +106,28 @@ function extractDynamicAttributesFrom(element, targetId, mutatedProp, args, acti
   , []);
 }
 
-// function extractDynamicListItemsFrom(element, targetId, mutatedProp, args, actionType) {
-//   const relevant = element.children.find(c => c.isDynamicText() && c.value.isArray());
-// // maybe element keeps track if prop was mapped + map function
-// // maybe prop accumulates appearances and map function
-//   return relevant ? {
-//     elementId: element.getIdForProp(mutatedProp.initialName, 'list'),
-//     method: 'append',
-//     newValue: mutatedProp.
-//   } : [];
-// }
+function extractDynamicListItemsFrom(element, targetId, mutatedProp, args, actionType) {
+  const relevant = element.children.find(c => c.isDynamicText() && mutatedProp.concerns(c.value) && 'transforms' in c.value); // maybe dynamicText is a bad name?
+  if (!relevant)
+    return [];
+
+  if (relevant.value.transforms.find(t => t.type === 'map'))
+    return {
+      elementId: element.getIdForProp(mutatedProp.initialName, 'list'),
+      method: 'append',
+      callbackIndex: relevant.value.parent.templates.indexOf(relevant.value.transforms[0].callback),
+      newValue: jQueryArgumentFrom(args[0])
+    };
+
+// maybe element keeps track if prop was mapped + map function
+// maybe prop accumulates appearances and map function
+// do something different here depending on map, filter, sort, whatever
+  // return {
+  //   elementId: element.getIdForProp(mutatedProp.initialName, 'list'),
+  //   method: 'append',
+  //   newValue: mutatedProp.toJQueryCode() + '(' + jQueryArgumentFrom(args[1]) + ')'
+  // };
+}
 
 export default function stateChangeEffects(element, targetId, mutatedProp, args, actionType) {
   return flatMap(element.elementNodes(), el =>
@@ -122,7 +137,8 @@ export default function stateChangeEffects(element, targetId, mutatedProp, args,
       extractConditionalDisplayChildrenFrom(el, targetId, mutatedProp, args, actionType),
       extractConditionalTextChildrenFrom(el, targetId, mutatedProp, args, actionType),
       extractDynamicValChildrenFrom(el, targetId, mutatedProp, args, actionType),
-      extractDynamicAttributesFrom(el, targetId, mutatedProp, args, actionType)
+      extractDynamicAttributesFrom(el, targetId, mutatedProp, args, actionType),
+      extractDynamicListItemsFrom(el, targetId, mutatedProp, args, actionType)
     )
   );
 }

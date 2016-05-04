@@ -58,4 +58,14 @@ export default {
       argument: consequent ? ':visible' : ':hidden',
     };
   },
+
+  // list(element, prop) {
+  //   const listChild = element.children.find(c => c.isDynamicText() && 'transforms' in c.value);
+
+  //   return listChild && {
+  //     element,
+  //     method: 'attr',
+  //     argument: 'data-' + listChild.value.initialName
+  //   };
+  // }
 };

@@ -35,6 +35,7 @@ export default class Component {
     this.loadedProps = Object.keys(safeLoadedState);
 
     this.callsFromHandler = [];
+    this.templates = [];
   }
 
   static get defaultProps() {
@@ -51,6 +52,7 @@ export default class Component {
   }
 
   jQuery() {
+    console.log(this.templates)
     const propMethodStrings = this.propMethodStrings();
     const propMethodsChunk = `var propMethods = {\n\t` + Object.keys(propMethodStrings).map(propMethodName => {
       return '\t' + propMethodName + ': ' + propMethodStrings[propMethodName].replace('\n', '\t');
@@ -59,7 +61,10 @@ export default class Component {
       //
       //
     }).join(',\n') + '\n};'
-    + '\nObject.assign(module.exports, propMethods)\n';
+    + '\nObject.assign(module.exports, propMethods);\n';
+
+    const templateMethodStrings = this.templates.map(t => t.toString()).join(',\n');
+    const templateMethodsChunk = `var templates = [${templateMethodStrings}].map((fn) => (...args) => fn(...args).render());\n\n`;
 
     const jQueryChange = (actionCall, targetId) => {
       const { actionType, mutatedProp: mutatedPropName, args } = actionCall;
@@ -87,7 +92,7 @@ export default class Component {
         + '\n});';
     });
 
-    return [propMethodsChunk, ...eventListeners].join('\n\n');
+    return [propMethodsChunk, templateMethodsChunk, ...eventListeners].join('\n\n');
   }
 
   // these should be namespaced with component names. so then maybe we can just toString the methods

@@ -63,6 +63,8 @@ export default class Prop {
       type: 'map',
       callback,
     });
+
+    this.parent.templates.push(callback)
     return Object.assign(new Prop(parent, initialName, value, _wasLoaded), { transforms });
   }
 
@@ -82,7 +84,7 @@ export default class Prop {
   }
 
   concerns(value) {
-    return value === this
+    return Prop.isProp(value) && value.value === this.value
       || (PropCall.isPropCall(value) && value.concernsProp(this));
   }
 

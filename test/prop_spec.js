@@ -4,7 +4,7 @@ import Component from '../src/classes/Component';
 import jsxQuery, { classNames, createElement } from '../src/jsxQuery';
 
 describe('Prop', () => {
-  const mockParent = { mutableProps: [], callsFromHandler: [] };
+  const mockParent = { mutableProps: [], callsFromHandler: [], templates: [] };
 
   const functionProp = new Prop(mockParent, 'myFunc', () => 'hi', false);
 
@@ -16,12 +16,6 @@ describe('Prop', () => {
 
       expect(functionProp.parent.callsFromHandler.length).toEqual(originalLength + 1);
     });
-
-    it('still has isMutable() function', () => {
-      expect(functionProp.isMutable.bind(functionProp)).toNotThrow();
-    });
-
-    it('still has all the expected Prop properties');
   });
 
   describe('when instantiated with a prop', () => {
