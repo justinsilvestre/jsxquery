@@ -1,5 +1,6 @@
 import { isEmpty, contains, isFunction, intersection } from 'lodash';
 import flatMap from 'lodash.flatmap';
+import pickBy from 'lodash.pickby';
 import Child from './Child';
 import Attribute from './Attribute';
 import EventListener from './EventListener';
@@ -61,11 +62,13 @@ export default class Element {
       || (isEmpty(children) ? [] : children.map(child => new Child(child)));
 
     const dynamicTextContentChild = this.children.some(child => child.isDynamicText());
-    const idAttribute = this.getAttribute('id');
+    // const idAttribute = this.getAttribute('id');
+    if (dynamicTextContentChild)
+      this.getIdBecause('with dynamic text content');
     if (dynamicTextContentChild && this.children.length > 1)
       throw new Error(`Your <${this.tagName}> element has dynamic text content not wrapped in its own element`);
-    if (dynamicTextContentChild && !idAttribute)
-      throw new Error(`Your <${this.tagName}> element with dynamic text content has no id attribute.`);
+    // if (dynamicTextContentChild && !idAttribute)
+    //   throw new Error(`Your <${this.tagName}> element with dynamic text content has no id attribute.`);
   }
 
   markup(indents = 0) {
@@ -151,10 +154,17 @@ export default class Element {
   }
 
   getIdBecause(qualityRequiringId) {
-    const id = this.getAttribute('id');
-    if (!id)
-      throw new Error(`Your <${this.tagName}> element ${qualityRequiringId} needs a unique id attribute`);
-    return id.displayValue();
+      const staticClassNames = pickBy(this.classNamesHash(), (val, key) => val && typeof val !== 'object');
+      const className = Object.keys(staticClassNames)[0]
+      const key = this.getAttribute('key') && this.getAttribute('key').displayValue()
+      if (className && key)
+        return '.' + className;
+
+      const id = this.getAttribute('id');
+      if (id)
+        return '#' + id.displayValue();
+
+      throw new Error(`Your <${this.tagName}> element ${qualityRequiringId} needs either a unique id attribute, or a key attribute + a static className attribute.`);
   }
 
   getIdForProp(propName, domain) {

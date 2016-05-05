@@ -36,6 +36,7 @@ export default class Component {
 
     this.callsFromHandler = [];
     this.templates = [];
+    this.extractionProcedures = [];
   }
 
   static get defaultProps() {
@@ -52,7 +53,6 @@ export default class Component {
   }
 
   jQuery() {
-    console.log(this.templates)
     const propMethodStrings = this.propMethodStrings();
     const propMethodsChunk = `var propMethods = {\n\t` + Object.keys(propMethodStrings).map(propMethodName => {
       return '\t' + propMethodName + ': ' + propMethodStrings[propMethodName].replace('\n', '\t');
@@ -65,6 +65,28 @@ export default class Component {
 
     const templateMethodStrings = this.templates.map(t => t.toString()).join(',\n');
     const templateMethodsChunk = `var templates = [${templateMethodStrings}].map((fn) => (...args) => fn(...args).render());\n\n`;
+
+    const objsWithSubpropsAndSourceProcedures = this.extractionProcedures.map(fn => fn());
+    const arrWithSubpropsAndSourceProcedures = this.extractionProcedures.map(fn => fn());
+    // const extractFromTemplate_Strings = Object.keys(objWithSubpropsAndSourceProcedures)
+    //   .map(subpropName =>
+    //     objWithSubpropsAndSourceProcedures[subpropName].scopedJQuery('li')
+    //   ).join('\n');
+    // const ex = arrWithSubpropsAndSourceProcedures.map(vss => {
+    //   console.log(vss)
+    //   // vs.scopedJQuery('li')
+    //   return vss.map(vs => vs.scopedJQuery('li'))
+    // }).reduce((a,b) => a.concat(b), []);
+    // const ex = Object.keys(objsWithSubpropsAndSourceProcedures)
+    //   .map(subpropsObj => 
+
+    //     JSON.stringify(subpropName) + ': () => ' + objWithSubpropsAndSourceProcedures[subpropName].scopedJQuery('li')).join(',\n\t')
+    console.log(objsWithSubpropsAndSourceProcedures)
+    const ex = objsWithSubpropsAndSourceProcedures.map(obj => '(el) => \({ ' +
+      Object.keys(obj).map(subpropName => `get ${subpropName}() { return ` + obj[subpropName].scopedJQuery('el') + '; }'
+    ).join(', ') + ' })')
+    const extractDataFromTemplateChunk = `var extractDataFromTemplate = [${ex}];`;
+    console.log(extractDataFromTemplateChunk, '*'.repeat(50))
 
     const jQueryChange = (actionCall, targetId) => {
       const { actionType, mutatedProp: mutatedPropName, args } = actionCall;
@@ -82,7 +104,7 @@ export default class Component {
       // if a prop is passed to an action, jquery-pass in the value taken from the appropriate DOM node.
       // if another value is passed to an action, save its value and stringify it, and jquery-pass that.
       const calledActionsAndProps = this.callsFromHandler.concat();
-      return `$('#${targetId}').on('${EVENTS[eventName]}', function() {`
+      return `$('${targetId}').on('${EVENTS[eventName]}', function() {`
         + '\n\t'
         + calledActionsAndProps.map(call => {
           return Actions.isActionCall(call)
@@ -92,7 +114,7 @@ export default class Component {
         + '\n});';
     });
 
-    return [propMethodsChunk, templateMethodsChunk, ...eventListeners].join('\n\n');
+    return [propMethodsChunk, templateMethodsChunk, extractDataFromTemplateChunk, ...eventListeners].join('\n\n');
   }
 
   // these should be namespaced with component names. so then maybe we can just toString the methods

@@ -99,6 +99,10 @@ export default class Child {
   }
 
   elementNodes() {
+    if (this.arrayValue()) {
+      return this.arrayValue().filter(Element.isElement).map(el => el.elementNodes()).reduce((a,b) => a.concat(b), [])
+    }
+
     const { consequent, alternate } = this.value || {};
     return [
       Element.isElement(this.value) && this.value.elementNodes(),

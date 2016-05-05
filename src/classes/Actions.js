@@ -29,6 +29,7 @@ function actionData(actionName) {
     const actionType = actionMatch[1];
     const mutatedProp = mutatedPropFrom(actionType, actionMatch[2]);
     const lowerCaseState = mutatedProp.charAt(0).toLowerCase() + mutatedProp.slice(1);
+    console.log('actionType', actionType, 'mutatedProp', lowerCaseState)
     return ([actionType, lowerCaseState]);
   }
   return null;

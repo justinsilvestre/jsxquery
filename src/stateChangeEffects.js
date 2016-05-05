@@ -107,17 +107,28 @@ function extractDynamicAttributesFrom(element, targetId, mutatedProp, args, acti
 }
 
 function extractDynamicListItemsFrom(element, targetId, mutatedProp, args, actionType) {
+  var result = [];
   const relevant = element.children.find(c => c.isDynamicText() && mutatedProp.concerns(c.value) && 'transforms' in c.value); // maybe dynamicText is a bad name?
-  if (!relevant)
-    return [];
+  if (!relevant || !relevant.value.transforms.find(t => t.type === 'map'))
+    return result;
+  if (actionType === 'filter') {
+    result.push({
+      elementId: element.getIdForProp(mutatedProp.initialName, 'list'),
+      method: 'filter',
+      transformIndex: relevant.value.parent.templates.indexOf(relevant.value.transforms[0].callback),
+      filter: args[0].toString(),
+    });
+  }
 
-  if (relevant.value.transforms.find(t => t.type === 'map'))
-    return {
+  // if (relevant.value.transforms.find(t => t.type === 'map'))
+  if (actionType === 'add')
+    result.push({
       elementId: element.getIdForProp(mutatedProp.initialName, 'list'),
       method: 'append',
-      callbackIndex: relevant.value.parent.templates.indexOf(relevant.value.transforms[0].callback),
+      transformIndex: relevant.value.parent.templates.indexOf(relevant.value.transforms[0].callback),
       newValue: jQueryArgumentFrom(args[0])
-    };
+    });
+    //$(listContainerElement).children().each(child => child.toggle(child.hasClass('complete')))
 
 // maybe element keeps track if prop was mapped + map function
 // maybe prop accumulates appearances and map function
@@ -127,6 +138,7 @@ function extractDynamicListItemsFrom(element, targetId, mutatedProp, args, actio
   //   method: 'append',
   //   newValue: mutatedProp.toJQueryCode() + '(' + jQueryArgumentFrom(args[1]) + ')'
   // };
+  return result
 }
 
 export default function stateChangeEffects(element, targetId, mutatedProp, args, actionType) {

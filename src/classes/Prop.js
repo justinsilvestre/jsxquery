@@ -3,12 +3,46 @@ import PropCall from './PropCall';
 import Chainable from './Chainable';
 import { createElement } from './Element';
 const jsxQuery = { createElement };
-
+import Proxy from 'harmony-proxy';
+import PropValueSource from './PropValueSource';
 function isValidComponent(val) {
   return 'mutableProps' in val; // maybe shoudl test from callsfromhandler?
 }
 
 export default class Prop {
+  subpropSources() {
+    var that = this;
+    var subprops = [];
+    const arg = new Proxy({}, {
+      get(target, name) {
+        const subprop = new Prop(that.parent, name, 'dummyValue', that.wasLoaded())
+        subprops.push(subprop);
+
+        return subprop;
+      },
+    });
+
+    const el = this.transforms[0].callback(arg, 'key');
+    // task.name
+    // 
+
+    // return subprops.map(sp => new PropValueSource(el.elementNodes(), sp))
+
+    return subprops.reduce((hash, subprop) => 
+      Object.assign(hash, {
+        [subprop.initialName]: new PropValueSource(el.elementNodes(), subprop),
+      }), {})
+
+    // return subprops.reduce((hash, subprop) => 
+    //   Object.defineProperty(hash, subprop.initialName, {
+    //     get: function() {
+    //       return new PropValueSource(el.elementNodes(), subprop)
+    //     }
+    //   }), {});
+
+
+  }
+
   constructor(parent, initialName, value, _wasLoaded = false) {
     if (Prop.isProp(value))
       return value;
@@ -62,10 +96,13 @@ export default class Prop {
     const transforms = (this.transforms || []).concat({
       type: 'map',
       callback,
+      // extract: this.subpropSources(),
     });
 
     this.parent.templates.push(callback)
-    return Object.assign(new Prop(parent, initialName, value, _wasLoaded), { transforms });
+    const listPropWithTransform = Object.assign(new Prop(parent, initialName, value, _wasLoaded), { transforms });
+    this.parent.extractionProcedures.push(this.subpropSources.bind(listPropWithTransform))
+    return listPropWithTransform;
   }
 
   valueSource() {

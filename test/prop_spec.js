@@ -4,7 +4,7 @@ import Component from '../src/classes/Component';
 import jsxQuery, { classNames, createElement } from '../src/jsxQuery';
 
 describe('Prop', () => {
-  const mockParent = { mutableProps: [], callsFromHandler: [], templates: [] };
+  const mockParent = { mutableProps: [], callsFromHandler: [], templates: [], extractionProcedures: [] };
 
   const functionProp = new Prop(mockParent, 'myFunc', () => 'hi', false);
 
