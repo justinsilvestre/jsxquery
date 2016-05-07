@@ -34,26 +34,28 @@ function jQueryArgumentFrom(actionArg, dependentValue) {
 // data- attributes?
 export default {
   classNames({ mutatedProp, args, actionType }, element) {
-    const toggleCriterion = actionType === 'toggle'
-      ? (void 0)
-      : jQueryArgumentFrom(args[0]);
+    const toggleCriterion = actionType === 'toggle' ? (void 0) : jQueryArgumentFrom(args[0]);
     const secondArg = typeof toggleCriterion === 'undefined' || typeof toggleCriterion === 'boolean'
       ? toggleCriterion
       : `Bool(${toggleCriterion})`;
-    const relevantClassNamesHash = pickBy(element.classNamesHash(), v => (console.log(mutatedProp), mutatedProp.concerns(v)));
+    const relevantClassNames = pickBy(element.classNamesHash(), v => mutatedProp.concerns(v));
 
-    return Object.keys(relevantClassNamesHash).reduce((arr, name) =>
+    return Object.keys(relevantClassNames).reduce((arr, name) =>
       arr.concat({
         elementId: element.getIdForProp(mutatedProp.initialName, `dynamic class '${name}'`),
         method: 'toggleClass',
         toggleCriterion,
-        dynamicValue: relevantClassNamesHash[name],
-        args: [`'${name}'`, secondArg].filter(v => typeof v !== 'undefined')
+        dynamicValue: relevantClassNames[name],
+        args: [`'${name}'`, secondArg].filter(v => typeof v !== 'undefined'),
       }), []);
   },
 
   textChildren({ mutatedProp, args }, element) {
-    return element.children.filter(c => c.isDynamicText() && !c.arrayValue() && mutatedProp.concerns(c.value)).map(c => ({
+    const dynamicTextChildren = element.children.filter(c =>
+      c.isDynamicText() && !c.arrayValue() && mutatedProp.concerns(c.value)
+    );
+
+    return dynamicTextChildren.map(c => ({
       elementId: element.getIdForProp(mutatedProp.initialName, 'dynamic content'),
       method: c.isRaw() ? 'html' : 'text',
       dynamicValue: c.value,
@@ -63,8 +65,10 @@ export default {
 
   // SHOULD USE TOGGLE WHEN LINKED TO PROP FUNCTION CALL
   conditionalDisplayChildren({ mutatedProp, args }, element) {
-    const relevantConditionalChild = element.children.find(c => c.isConditional() && mutatedProp.concerns(c.value.test));
-    const { test, consequent, alternate } = (relevantConditionalChild || { value: {} }).value;
+    const relevantConditionalChild = element.children.find(c =>
+      c.isConditional() && mutatedProp.concerns(c.value.test)
+    ) || { value: {} };
+    const { test, consequent, alternate } = relevantConditionalChild.value;
 
     return [consequent, alternate].filter(o => Element.isElement(o)).map(el => ({
       elementId: el.getIdForProp(mutatedProp.initialName, 'display styles'),
@@ -121,27 +125,29 @@ export default {
 
   mappedLists({ mutatedProp, args, actionType }, element) {
     var result = [];
-    const relevant = element.children.find(c => c.isDynamicText() && mutatedProp.concerns(c.value) && 'transforms' in c.value); // maybe dynamicText is a bad name?
-    if (!relevant || !relevant.value.transforms.find(t => t.type === 'map'))
+    const mappedList = element.children.find(c =>
+      c.isDynamicText() && mutatedProp.concerns(c.value) && 'transforms' in c.value
+    ); // maybe dynamicText is a bad name?
+    if (!mappedList || !mappedList.value.transforms.find(t => t.type === 'map'))
       return result;
+
     if (actionType === 'filter') {
       result.push({
         elementId: element.getIdForProp(mutatedProp.initialName, 'list'),
         method: 'filter',
-        transformIndex: relevant.value.parent.templates.indexOf(relevant.value.transforms[0].callback),
+        transformIndex: mappedList.value.parent.templates.indexOf(mappedList.value.transforms[0].callback),
         filter: args[0].toString(),
       });
     }
 
-    // if (relevant.value.transforms.find(t => t.type === 'map'))
+    // if (mappedList.value.transforms.find(t => t.type === 'map'))
     if (actionType === 'add') {
       result.push({
         elementId: element.getIdForProp(mutatedProp.initialName, 'list'),
         method: 'append',
-        transformIndex: relevant.value.parent.templates.indexOf(relevant.value.transforms[0].callback),
+        transformIndex: mappedList.value.parent.templates.indexOf(mappedList.value.transforms[0].callback),
         newValue: jQueryArgumentFrom(args[0]),
         args: [jQueryArgumentFrom(args[0])],
-
       });
     }
       //$(listContainerElement).children().each(child => child.toggle(child.hasClass('complete')))
