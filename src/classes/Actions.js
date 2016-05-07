@@ -1,7 +1,6 @@
-import { contains } from 'lodash';
-import Prop from './Prop';
-import PropCall from './PropCall'
+import PropCall from './PropCall';
 import ACTIONS from '../supportedActions';
+import ActionCall from './ActionCall';
 
 var getTracker;
 
@@ -17,7 +16,7 @@ function propAffixes(actionType) {
   }
 }
 
-function mutatedPropFrom(actionType, restOfActionName) {
+function mutatedPropNameFrom(actionType, restOfActionName) {
   const { prefix, suffix } = propAffixes(actionType);
   return [prefix, restOfActionName, suffix].filter(s=>s).join('');
 }
@@ -27,16 +26,15 @@ function actionData(actionName) {
 
   if (actionMatch) {
     const actionType = actionMatch[1];
-    const mutatedProp = mutatedPropFrom(actionType, actionMatch[2]);
-    const lowerCaseState = mutatedProp.charAt(0).toLowerCase() + mutatedProp.slice(1);
-    console.log('actionType', actionType, 'mutatedProp', lowerCaseState)
+    const mutatedPropName = mutatedPropNameFrom(actionType, actionMatch[2]);
+    const lowerCaseState = mutatedPropName.charAt(0).toLowerCase() + mutatedPropName.slice(1);
     return ([actionType, lowerCaseState]);
   }
   return null;
 }
 
 export default class Actions {
-  constructor(actionNames, getComponentTracker) {
+  constructor(actionNames, getComponentTracker, parentProps) {
     getTracker = getComponentTracker;
 
     actionNames.forEach(actionName => {
@@ -47,12 +45,13 @@ export default class Actions {
       if (this[actionName])
         throw new Error(`You have already entered an action named ${actionName}`);
 
-      this[actionName] = this.create(data);
+      const [actionType, mutatedPropName] = data;
+      this[actionName] = this.create(actionType, parentProps[mutatedPropName]);
       Object.assign(this[actionName], data);
     });
   }
 
-  create([actionType, mutatedProp]) {
+  create(actionType, mutatedProp) {
     return (...args) => {
       const propCallArgs = args.filter(a => PropCall.isPropCall(a));
       propCallArgs.forEach(arg => {
@@ -66,13 +65,9 @@ export default class Actions {
       if (actionType === 'end' || actionType === 'hide')
         practicalArgs.push(false);
 
-      const actionCall = {
-        actionType,
-        mutatedProp,
-        args: practicalArgs,
-      }
+      const actionCall = new ActionCall(actionType, mutatedProp, practicalArgs);
 
-      getTracker().push(actionCall)
+      getTracker().push(actionCall);
       return actionCall;
     };
   }

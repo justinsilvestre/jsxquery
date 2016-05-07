@@ -6,11 +6,11 @@ import Element from './Element';
 import { escape } from 'lodash';
 
 function markupFromValue(value, indents) {
+  if (Chainable.isChainable(value))
+    return escape('${' + value.initialValue() + '}')
+
   if (Element.isElement(value))
     return value.markup(indents);
-
-  if (Prop.isProp(value))
-    return value.initialValue() 
 
   if (PropCall.isPropCall(value) || Prop.isProp(value))
     return escape(value.initialValue());
@@ -58,7 +58,7 @@ export default class Child {
     if (Array.isArray(this.value))
       return this.value;
 
-    if (Prop.isProp(this.value) && Array.isArray(this.value.transformed()))
+    if (Prop.isProp(this.value) && Array.isArray(this.value.transforms && this.value.transformed()))
       return this.value.transformed();
   }
 
@@ -92,7 +92,7 @@ export default class Child {
       return this.value.render(indents);
 
     if (this.isDynamicText()) {
-      return markupFromValue(this.value.initialValue(), indents);
+      return markupFromValue(this.value, indents);
     }
 
     return markupFromValue(this.value, indents);

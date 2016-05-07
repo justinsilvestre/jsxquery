@@ -6,14 +6,14 @@ const JQUERY_EVENT_PROPERTY_EQUIVALENTS = {
 };
 
 export default class Event {
-  constructor(callTracker, ...chain) {
+  constructor(callTracker, ...propertyChain) {
     this.callTracker = callTracker;
-    this.chain = chain;
+    this.propertyChain = propertyChain;
     this.__isEvent__ = true;
 
     const fn = () => {
-      const call = Object.assign(new Event(callTracker, ...chain), {
-        toJQueryCode: () => this.toJQueryCode() + '()',
+      const call = Object.assign(new Event(callTracker, ...propertyChain), {
+        jQuery: () => this.jQuery() + '()',
       });
 
       callTracker.push(call);
@@ -21,7 +21,7 @@ export default class Event {
     };
 
     Object.assign(fn, this, {
-      toJQueryCode: this.toJQueryCode.bind(this),
+      jQuery: this.jQuery.bind(this),
     });
 
     return new Proxy(fn, {
@@ -32,16 +32,16 @@ export default class Event {
   static getHandler(target, name) {
     return name in target
       ? target[name]
-      : new Event(target.callTracker, ...target.chain.concat(name));
+      : new Event(target.callTracker, ...target.propertyChain.concat(name));
   }
 
   static isEvent(val) {
-    return typeof val === 'function' && '__isEvent__' in val;
+    return typeof val === 'function' && val.__isEvent__ === true;
   }
 
-  toJQueryCode() {
-    const { chain } = this;
-    const joinedPropertyChain = chain.join('.');
-    return JQUERY_EVENT_PROPERTY_EQUIVALENTS[joinedPropertyChain] || ['event', ...chain].join('.');
+  jQuery() {
+    const { propertyChain } = this;
+    const joinedPropertyChain = propertyChain.join('.');
+    return JQUERY_EVENT_PROPERTY_EQUIVALENTS[joinedPropertyChain] || ['event', ...propertyChain].join('.');
   }
 }

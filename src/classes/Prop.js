@@ -9,6 +9,12 @@ function isValidComponent(val) {
   return 'mutableProps' in val; // maybe shoudl test from callsfromhandler?
 }
 
+function loopObj(start) {
+  const obj = { initialValue: () => '${' + chain.join('.') + '}' };
+
+  return new Chainable(obj, start)
+}
+
 export default class Prop {
   subpropSources() {
     var that = this;
@@ -72,7 +78,7 @@ export default class Prop {
   static isProp(val) {
     return val
       && (typeof val === 'object' || typeof val === 'function')
-      && ['parent', 'initialName', 'value', 'wasLoaded'].every(p => p in val);
+      && typeof val.initialName === 'string';
   }
 
   isMutable() {
@@ -128,11 +134,8 @@ export default class Prop {
 
 // need to get value from presence/absence of element/class, or child content. (conditional stuff.)
 
-  toJQueryCode() {
-    const { element, method, argument, equalityCheck } = this.valueSource();
-    const elementId = element.getAttribute('id').displayValue();
-    const argumentString = typeof argument !== 'undefined' ? JSON.stringify(argument) : '';
-    return `$('#${elementId}').${method}(${argumentString})${equalityCheck || ''}`;
+  jQuery() {
+    return this.valueSource().jQuery();
   }
 
   initialValue() {
@@ -141,7 +144,7 @@ export default class Prop {
 
   transformed() {
     if (!this.transforms)
-      return;
+      throw new Error(`Prop ${this.initialName} is not transformed in this place.`)
 
     if (!this.wasLoaded())
       return this.value.map(this.transforms[0].callback);
@@ -149,10 +152,14 @@ export default class Prop {
     const loopVar = this.initialName + 'Item';
     const varStatus = this.transforms[0].callback.length > 1 ? this.initialName + 'Index' : false;
     const content = this.transforms[0].callback(new Chainable(loopVar), new Chainable(varStatus).loop);
-    return (
+    return [
       <c:forEach var={loopVar} items={this.value} varStatus={varStatus}>
         {content}
       </c:forEach>
-    );
+    ];
+  }
+
+  propsInvolved() {
+    return [ this ]
   }
 }

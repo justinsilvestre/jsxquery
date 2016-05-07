@@ -14,7 +14,8 @@ function markupFromValue(value, indents) {
 export default class ConditionalValue {
   static isConditionalValue(value) {
     return value && typeof value === 'object'
-      && ['test', 'consequent', 'alternate'].every(prop => prop in value);
+      && ['test', 'consequent', 'alternate'].every(prop => prop in value)
+      && !value.chain;
   }
 
   constructor(test, consequent, alternate) {

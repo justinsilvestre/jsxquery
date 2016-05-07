@@ -9,3 +9,8 @@ export default class EventListener {
     });
   }
 }
+
+
+// each event listener needs to keep track of mutated props.
+// how about we first make variables for each mutated prop,
+// and then apply the DOM changes.

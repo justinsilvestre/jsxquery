@@ -9,11 +9,10 @@ import { uniq, isFunction, values } from 'lodash';
 import * as EVENTS from '../supportedEvents';
 import Prop from './Prop';
 import Actions from './Actions';
-import stateChangeEffects from '../stateChangeEffects';
 import reduxActionsTemplate from '../reduxTemplates/actions';
 import reduxSetupTemplate from '../reduxTemplates/setup';
 import Event from './Event';
-import jQueryCall from '../jQueryCall';
+import JQueryEventHandler from './JQueryEventHandler';
 import PropValueSource from './PropValueSource';
 
 export default class Component {
@@ -67,54 +66,27 @@ export default class Component {
     const templateMethodsChunk = `var templates = [${templateMethodStrings}].map((fn) => (...args) => fn(...args).render());\n\n`;
 
     const objsWithSubpropsAndSourceProcedures = this.extractionProcedures.map(fn => fn());
-    const arrWithSubpropsAndSourceProcedures = this.extractionProcedures.map(fn => fn());
-    // const extractFromTemplate_Strings = Object.keys(objWithSubpropsAndSourceProcedures)
-    //   .map(subpropName =>
-    //     objWithSubpropsAndSourceProcedures[subpropName].scopedJQuery('li')
-    //   ).join('\n');
-    // const ex = arrWithSubpropsAndSourceProcedures.map(vss => {
-    //   console.log(vss)
-    //   // vs.scopedJQuery('li')
-    //   return vss.map(vs => vs.scopedJQuery('li'))
-    // }).reduce((a,b) => a.concat(b), []);
-    // const ex = Object.keys(objsWithSubpropsAndSourceProcedures)
-    //   .map(subpropsObj => 
-
-    //     JSON.stringify(subpropName) + ': () => ' + objWithSubpropsAndSourceProcedures[subpropName].scopedJQuery('li')).join(',\n\t')
-    console.log(objsWithSubpropsAndSourceProcedures)
     const ex = objsWithSubpropsAndSourceProcedures.map(obj => '(el) => \({ ' +
       Object.keys(obj).map(subpropName => `get ${subpropName}() { return ` + obj[subpropName].scopedJQuery('el') + '; }'
-    ).join(', ') + ' })')
+    ).join(', ') + ' })');
     const extractDataFromTemplateChunk = `var extractDataFromTemplate = [${ex}];`;
-    console.log(extractDataFromTemplateChunk, '*'.repeat(50))
-
-    const jQueryChange = (actionCall, targetId) => {
-      const { actionType, mutatedProp: mutatedPropName, args } = actionCall;
-      const mutatedProp = this.props[mutatedPropName];
-      if (!mutatedProp)
-        throw new Error(`A '${actionType}' action was defined for a prop '${mutatedPropName}' that doesn't exist.`);
-      return jQueryCall(stateChangeEffects(this.element(), targetId, mutatedProp, args, actionType));
-    };
 
     const eventListeners = this.eventListeners().map(eventListener => {
       const { eventName, targetId, handler } = eventListener;
       this.callsFromHandler = [];
       handler(new Event(this.callsFromHandler));
-      // should have called actions AND called props.
-      // if a prop is passed to an action, jquery-pass in the value taken from the appropriate DOM node.
-      // if another value is passed to an action, save its value and stringify it, and jquery-pass that.
       const calledActionsAndProps = this.callsFromHandler.concat();
-      return `$('${targetId}').on('${EVENTS[eventName]}', function() {`
-        + '\n\t'
-        + calledActionsAndProps.map(call => {
-          return Actions.isActionCall(call)
-          ? jQueryChange(call, targetId)
-          : call.toJQueryCode();
-        }).join('\n  ')
-        + '\n});';
+
+      calledActionsAndProps.filter(Actions.isActionCall).forEach(actionCall => {
+        const { actionType, mutatedProp } = actionCall;
+        if (!mutatedProp)
+          throw new Error(`A '${actionType}' action was defined for a prop '${mutatedProp.initialName}' that doesn't exist.`);
+      });
+
+      return new JQueryEventHandler(eventName, targetId, calledActionsAndProps);
     });
 
-    return [propMethodsChunk, templateMethodsChunk, extractDataFromTemplateChunk, ...eventListeners].join('\n\n');
+    return [propMethodsChunk, templateMethodsChunk, extractDataFromTemplateChunk, ...eventListeners.map(e=> e.render())].join('\n\n');
   }
 
   // these should be namespaced with component names. so then maybe we can just toString the methods
@@ -164,7 +136,7 @@ export default class Component {
 
   get actions() {
     if (!this._actions)
-      this._actions = new Actions(this.constructor.actionNames, () => this.callsFromHandler);
+      this._actions = new Actions(this.constructor.actionNames, () => this.callsFromHandler, this.props);
     return this._actions;
   }
 

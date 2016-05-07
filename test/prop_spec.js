@@ -60,13 +60,13 @@ describe('Prop', () => {
       const loadedListProp = new Prop(mockParent, 'loadedListProp', arrayValue, true);
       const wrapWithSpan = val => <span id="boop">{val}</span>;
 
-      expect(loadedListProp.map(wrapWithSpan).transformed()).toContain({
+      expect(loadedListProp.map(wrapWithSpan).transformed()[0]).toContain({
         tagName: 'c:forEach'
       });
     });
 
-    it('returns void for non-transformed prop', () => {
-      expect(functionProp.transformed()).toNotExist();
+    it('throws error for non-transformed prop', () => {
+      expect(() => functionProp.transformed()).toThrow();
     })
   })
 

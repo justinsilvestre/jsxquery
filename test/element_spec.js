@@ -8,7 +8,7 @@ describe('Element', () => {
     class FreeDynamicChild extends Component {
       static get defaultProps() { return { apropos: 'true' }; }
       render() {
-        return <div>{this.props.apropos}hi there</div>;
+        return <div id="whatevs">{this.props.apropos}hi there</div>;
       }
     }
 
@@ -21,7 +21,7 @@ describe('Element', () => {
     class FreeConditionalTextChild extends Component {
       static get defaultProps() { return { apropos: 'true' }; }
       render() {
-        return <div>{this.props.apropos ? 'woop' : 'dedoop'} <span>hi there</span></div>;
+        return <div id="whatevs">{this.props.apropos ? 'woop' : 'dedoop'} <span>hi there</span></div>;
       }
     }
     expect(() => createElement(FreeConditionalTextChild, null)).toThrow(

@@ -5,6 +5,7 @@ import Prop from './Prop';
 import PropCall from './PropCall';
 import ConditionalValue from './ConditionalValue';
 import ATTRIBUTES_TO_TREAT_WITH_PROP_METHOD from '../htmlElementData';
+import Chainable from './Chainable'
 
 const NAME_ALIAS_MAP = { className: 'class', htmlFor: 'for' };
 
@@ -19,12 +20,13 @@ function styleString(styleObj) {
   ).join(' ');
 }
 
+const isDynamicValue = value => Prop.isProp(value) || PropCall.isPropCall(value) || Chainable.isChainable(value);
+
+
 export default class Attribute {
   constructor(name, value) {
     this.name = name;
     this.value = value;
-    this._isConditional = ConditionalValue.isConditionalValue(value);
-    this._isContainer = Prop.isProp(value) || PropCall.isPropCall(value);
 
     if (this.isEventHandler() && !isFunction(this.value))
       throw new Error(`Your '${name} attribute needs a function value. Did you forget to wrap an action call in a function?`);
@@ -41,11 +43,11 @@ export default class Attribute {
   }
 
   isConditional() {
-    return this._isConditional;
+    return ConditionalValue.isConditionalValue(this.value);
   }
 
   isContainer() {
-    return this._isContainer;
+    return isDynamicValue(this.value);
   }
 
   isEventHandler() {
@@ -93,14 +95,17 @@ export default class Attribute {
     if (this.isClassNameObj()) {
       const classObj = this.value._classNames_;
       return Object.keys(classObj).map(className => {
-        const propOrCall = (Prop.isProp(classObj[className]) || PropCall.isPropCall(classObj[className]))
+        // if (Chainable.isChainable(classObj[className]))
+        //   return `$\{${classObj[className].initialValue()} ? '${className}' : ''}`;
+
+        const dynamicValue = isDynamicValue(classObj[className])
           ? classObj[className]
           : null;
 
-        return propOrCall ?
-          (propOrCall.wasLoaded()
-            ? `$\{${propOrCall.initialValue()} ? '${className}' : ''}`
-            : (propOrCall.initialValue() && className))
+        return dynamicValue ?
+          (dynamicValue.wasLoaded()
+            ? `$\{${dynamicValue.initialValue()} ? '${className}' : ''}`
+            : (dynamicValue.initialValue() && className))
           : (classObj[className] && className);
       }).filter(c => c).join(' ');
     }

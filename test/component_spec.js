@@ -133,7 +133,7 @@ describe('Component', () => {
       }
       const component = <NoIdForListeners />.component;
       expect(component.eventListeners.bind(component)).toThrow(
-        'Your <div> element with listeners [onClick] needs a unique id attribute'
+        'Your <div> element with listeners [onClick] needs either a unique id attribute or a key attribute + a static className attribute.'
       );
     });
 

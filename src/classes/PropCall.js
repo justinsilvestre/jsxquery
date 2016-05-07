@@ -1,5 +1,27 @@
 import Prop from './Prop';
-import { jQueryArgumentFrom } from '../stateChangeEffects';
+import Event from './Event';
+import flatMap from 'lodash.flatmap';
+
+
+function jQueryArgumentFrom(actionArg, dependentValue) {
+  if (PropCall.isPropCall(dependentValue))
+    return dependentValue.prop.initialName;
+
+  if (PropCall.isPropCall(actionArg))
+    return actionArg.prop.initialName;
+
+  if (Event.isEvent(actionArg)
+      || Prop.isProp(actionArg))
+      // || PropCall.isPropCall(actionArg))
+    return actionArg.jQuery();
+
+  if (actionArg && typeof actionArg === 'object')
+    return '{ ' + transform(actionArg, (result, val, key) => {
+      result.push(JSON.stringify(key) + ':' + jQueryArgumentFrom(val))
+    }, []).join(', ') + ' }';
+
+  return typeof actionArg === 'boolean' ? actionArg : JSON.stringify(actionArg);
+}
 
 export default class PropCall {
   constructor(functionProp, args) {
@@ -7,7 +29,12 @@ export default class PropCall {
     this.args = args;
   }
 
-  toJQueryCode() {
+  jQuery() {
+    return `var ${this.prop.initialName} = ` + this.jQueryCall();
+    return this.prop.initialName;
+  }
+
+  jQueryCall() {
     const { prop, args } = this;
     return 'propMethods[' + JSON.stringify(prop.initialName) + '](' + args.map(jQueryArgumentFrom).join(', ') + ')';
   }
@@ -23,11 +50,9 @@ export default class PropCall {
         // here should maybe throw an error if you try to access .value as for a Prop
 
   static isPropCall(val) {
-    return (val &&
-      typeof val === 'object'
-      && ['prop', 'args'].every(p => p in val));
-      // && Array.isArray(val.args))
-      // && isFunction(val.prop);
+    return val
+      && typeof val === 'object'
+      && Prop.isProp(val.prop);
   }
 
   concernsProp(prop) {
@@ -43,5 +68,9 @@ export default class PropCall {
 
   wasLoaded() {
     return this.args.some(arg => (Prop.isProp(arg) || PropCall.isPropCall(arg)) && arg.wasLoaded());
+  }
+
+  propsInvolved() {
+    return flatMap(this.args, v => v.propsInvolved());
   }
 }

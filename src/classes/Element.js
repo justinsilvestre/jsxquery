@@ -27,11 +27,10 @@ export default class Element {
   static isElement(val) {
     return val
       && typeof val === 'object'
-      && val._isElement_;
+      && typeof val.tagName === 'string';
   }
 
   constructor(tagName, propsOrAttributes, ...children) {
-    this._isElement_ = true;
     const ComponentConstructor = typeof tagName === 'string' ? null : tagName;
     if (ComponentConstructor) {
       if (!isFunction(ComponentConstructor))
@@ -158,13 +157,13 @@ export default class Element {
       const className = Object.keys(staticClassNames)[0]
       const key = this.getAttribute('key') && this.getAttribute('key').displayValue()
       if (className && key)
-        return '.' + className;
+        return "'." + className + "'";
 
       const id = this.getAttribute('id');
       if (id)
-        return '#' + id.displayValue();
+        return "'#" + id.displayValue() + "'";
 
-      throw new Error(`Your <${this.tagName}> element ${qualityRequiringId} needs either a unique id attribute, or a key attribute + a static className attribute.`);
+      throw new Error(`Your <${this.tagName}> element ${qualityRequiringId} needs either a unique id attribute or a key attribute + a static className attribute.`);
   }
 
   getIdForProp(propName, domain) {

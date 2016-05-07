@@ -9,7 +9,8 @@ function getHandler(target, name) {
 function Chainable(...chain) {
   var obj = {};
   obj.chain = chain;
-  obj.initialValue = () => '${' + chain.join('.') + '}'
+  obj.initialValue = () => chain.join('.') ;
+  obj.wasLoaded = () => true;
   return new Proxy(obj, {
     get: getHandler,
   });
