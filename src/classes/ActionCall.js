@@ -47,12 +47,12 @@ export default class ActionCall {
   }
 
   domActions(targetId) {
-    const { actionType, mutatedProp, args } = this;
+    const { mutatedProp } = this;
     const element = mutatedProp.parent.element();
 
     const methodCalls = flatMap(element.elementNodes(), el =>
       flatMap(Object.keys(stateChangeEffects), method =>
-        stateChangeEffects[method](el, targetId, mutatedProp, args, actionType)
+        stateChangeEffects[method](this, el, targetId)
       )
     );
 

@@ -33,7 +33,7 @@ function jQueryArgumentFrom(actionArg, dependentValue) {
 
 // data- attributes?
 export default {
-  classNames(element, targetId, mutatedProp, args, actionType) {
+  classNames({ mutatedProp, args, actionType }, element) {
     const toggleCriterion = actionType === 'toggle'
       ? (void 0)
       : jQueryArgumentFrom(args[0]);
@@ -52,17 +52,17 @@ export default {
       }), []);
   },
 
-  textChildren(element, targetId, mutatedProp, args, actionType) {
+  textChildren({ mutatedProp, args }, element) {
     return element.children.filter(c => c.isDynamicText() && !c.arrayValue() && mutatedProp.concerns(c.value)).map(c => ({
       elementId: element.getIdForProp(mutatedProp.initialName, 'dynamic content'),
       method: c.isRaw() ? 'html' : 'text',
       dynamicValue: c.value,
-      args: [jQueryArgumentFrom(args[0], c.value)]
+      args: [jQueryArgumentFrom(args[0], c.value)],
     }));
   },
 
   // SHOULD USE TOGGLE WHEN LINKED TO PROP FUNCTION CALL
-  conditionalDisplayChildren(element, targetId, mutatedProp, args, actionType) {
+  conditionalDisplayChildren({ mutatedProp, args }, element) {
     const relevantConditionalChild = element.children.find(c => c.isConditional() && mutatedProp.concerns(c.value.test));
     const { test, consequent, alternate } = (relevantConditionalChild || { value: {} }).value;
 
@@ -75,7 +75,7 @@ export default {
     }));
   },
 
-  conditionalTextChildren(element, targetId, mutatedProp, args, actionType) {
+  conditionalTextChildren({ mutatedProp, args }, element) {
     const relevantConditionalChild = element.children.find(c =>
       c.isConditional()
         && !Element.isElement(c.value.consequent || c.value.alternate) && mutatedProp.concerns(c.value.test)
@@ -92,7 +92,7 @@ export default {
     };
   },
 
-  valueAttributes(element, targetId, mutatedProp, args, actionType) {
+  valueAttributes({ mutatedProp, args }, element, targetId) {
     const valueAttribute = element.getAttribute('value');
 
     const v = valueAttribute
@@ -101,13 +101,12 @@ export default {
         elementId: element.getIdForProp(mutatedProp.initialName, 'value attribute'),
         method: 'val',
         dynamicValue: valueAttribute.value,
-        args: [jQueryArgumentFrom(args[0], valueAttribute.value)]
+        args: [jQueryArgumentFrom(args[0], valueAttribute.value)],
       };
     return v && v.elementId !== targetId ? v : [];
-    //////////////////////////////// BUT NOW ELEMENTID CAN BE A CLASS.
   },
 
-  attributes(element, targetId, mutatedProp, args, actionType) {
+  attributes({ mutatedProp, args }, element) {
     const relevantDynamicAttributes = element.attributes.filter(a => a.name !== 'value' && mutatedProp.concerns(a.value));
 
     return relevantDynamicAttributes.reduce((arr, attribute) =>
@@ -115,15 +114,12 @@ export default {
         elementId: element.getIdForProp(mutatedProp.initialName, 'dynamic attribute'),
         method: attribute.jQueryMethod(),
         dynamicValue: attribute.value,
-        args: ["'" + attribute.name + "'", jQueryArgumentFrom(args[0], attribute.value)]
-        // newValue: PropCall.isPropCall(attribute.value)
-        //   ? attribute.value.jQuery()
-        //   : (typeof args[0] !== 'boolean' && jQueryArgumentFrom(args[0])),
+        args: ["'" + attribute.name + "'", jQueryArgumentFrom(args[0], attribute.value)],
       })
     , []);
   },
 
-  mappedLists(element, targetId, mutatedProp, args, actionType) {
+  mappedLists({ mutatedProp, args, actionType }, element) {
     var result = [];
     const relevant = element.children.find(c => c.isDynamicText() && mutatedProp.concerns(c.value) && 'transforms' in c.value); // maybe dynamicText is a bad name?
     if (!relevant || !relevant.value.transforms.find(t => t.type === 'map'))
