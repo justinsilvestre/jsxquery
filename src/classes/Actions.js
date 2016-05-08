@@ -56,7 +56,7 @@ export default class Actions {
       const propCallArgs = args.filter(a => PropCall.isPropCall(a));
       propCallArgs.forEach(arg => {
         const argIndex = getTracker().lastIndexOf(arg);
-        // getTracker().splice(argIndex, 1);
+        getTracker().splice(argIndex, 1);
       });
 
       var practicalArgs = [].concat.call(args);
@@ -68,6 +68,7 @@ export default class Actions {
       const actionCall = new ActionCall(actionType, mutatedProp, practicalArgs);
 
       getTracker().push(actionCall);
+
       return actionCall;
     };
   }

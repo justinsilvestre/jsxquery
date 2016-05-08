@@ -1,52 +1,26 @@
-import Prop from './classes/Prop';
 import PropCall from './classes/PropCall';
-import Event from './classes/Event';
 import pickBy from 'lodash.pickby';
-import { transform } from 'lodash';
 import Element from './classes/Element';
-
-// SO ACTUALLY FIRST
-// before doing state changes
-// we clone the state
-
-function jQueryArgumentFrom(actionArg, dependentValue) {
-  if (PropCall.isPropCall(dependentValue))
-    return dependentValue.jQueryCall();
-    // return dependentValue.prop.initialName;
-
-  if (PropCall.isPropCall(actionArg))
-    return actionArg.jQueryCall();
-    // return actionArg.prop.initialName;
-
-  if (Event.isEvent(actionArg)
-      || Prop.isProp(actionArg))
-      // || PropCall.isPropCall(actionArg))
-    return actionArg.jQuery();
-
-  if (actionArg && typeof actionArg === 'object')
-    return '{ ' + transform(actionArg, (result, val, key) => {
-      result.push(JSON.stringify(key) + ':' + jQueryArgumentFrom(val))
-    }, []).join(', ') + ' }';
-
-  return typeof actionArg === 'boolean' ? actionArg : JSON.stringify(actionArg);
-}
+import Argument from './classes/Argument';
 
 // data- attributes?
 export default {
   classNames({ mutatedProp, args, actionType }, element) {
-    const toggleCriterion = actionType === 'toggle' ? (void 0) : jQueryArgumentFrom(args[0]);
-    const secondArg = typeof toggleCriterion === 'undefined' || typeof toggleCriterion === 'boolean'
-      ? toggleCriterion
-      : `Bool(${toggleCriterion})`;
     const relevantClassNames = pickBy(element.classNamesHash(), v => mutatedProp.concerns(v));
+    const toggleCriterion = args[0] && args[0].value;
+    const method = typeof toggleCriterion === 'boolean'
+      ? (toggleCriterion ? 'addClass' : 'removeClass')
+      : 'toggleClass';
+    const secondArg = method === 'toggleClass' && toggleCriterion
+      ? args[0].boolean()
+      : [];
 
     return Object.keys(relevantClassNames).reduce((arr, name) =>
       arr.concat({
         elementId: element.getIdForProp(mutatedProp.initialName, `dynamic class '${name}'`),
-        method: 'toggleClass',
-        toggleCriterion,
+        method,
         dynamicValue: relevantClassNames[name],
-        args: [`'${name}'`, secondArg].filter(v => typeof v !== 'undefined'),
+        args: [new Argument(name)].concat(secondArg),
       }), []);
   },
 
@@ -59,7 +33,7 @@ export default {
       elementId: element.getIdForProp(mutatedProp.initialName, 'dynamic content'),
       method: c.isRaw() ? 'html' : 'text',
       dynamicValue: c.value,
-      args: [jQueryArgumentFrom(args[0], c.value)],
+      args: [args[0]],
     }));
   },
 
@@ -74,8 +48,7 @@ export default {
       elementId: el.getIdForProp(mutatedProp.initialName, 'display styles'),
       method: el === consequent ? 'show' : 'hide',
       dynamicValue: test,
-      args: [PropCall.isPropCall(test) ? test.jQuery()
-        : (typeof args[0] === 'boolean' ? args[0] : jQueryArgumentFrom(args[0]))],
+      args: [args[0]],
     }));
   },
 
@@ -87,12 +60,12 @@ export default {
     if (!relevantConditionalChild)
       return [];
 
-    const { test, consequent, alternate } = relevantConditionalChild.value;
+    const { consequent, alternate } = relevantConditionalChild.value;
     return {
       elementId: element.getIdForProp(mutatedProp.initialName, 'conditional text'),
       method: relevantConditionalChild.isRaw() ? 'html' : 'text',
+      args: [new Argument(args[0].value ? consequent : alternate)],
       dynamicValue: test,
-      args: [test.jQuery() + ' ? ' + jQueryArgumentFrom(consequent) + ' : ' + jQueryArgumentFrom(alternate)]
     };
   },
 
@@ -105,7 +78,7 @@ export default {
         elementId: element.getIdForProp(mutatedProp.initialName, 'value attribute'),
         method: 'val',
         dynamicValue: valueAttribute.value,
-        args: [jQueryArgumentFrom(args[0], valueAttribute.value)],
+        args: [args[0]],
       };
     return v && v.elementId !== targetId ? v : [];
   },
@@ -118,7 +91,7 @@ export default {
         elementId: element.getIdForProp(mutatedProp.initialName, 'dynamic attribute'),
         method: attribute.jQueryMethod(),
         dynamicValue: attribute.value,
-        args: ["'" + attribute.name + "'", jQueryArgumentFrom(args[0], attribute.value)],
+        args: [new Argument(attribute.name), args[0]],
       })
     , []);
   },
@@ -136,7 +109,7 @@ export default {
         elementId: element.getIdForProp(mutatedProp.initialName, 'list'),
         method: 'filter',
         transformIndex: mappedList.value.parent.templates.indexOf(mappedList.value.transforms[0].callback),
-        filter: args[0].toString(),
+        filter: args[0],
       });
     }
 
@@ -146,8 +119,9 @@ export default {
         elementId: element.getIdForProp(mutatedProp.initialName, 'list'),
         method: 'append',
         transformIndex: mappedList.value.parent.templates.indexOf(mappedList.value.transforms[0].callback),
-        newValue: jQueryArgumentFrom(args[0]),
-        args: [jQueryArgumentFrom(args[0])],
+        newValue: args[0].jQuery(),
+        // dynamicValue: args[0],
+        args: [args[0]],
       });
     }
       //$(listContainerElement).children().each(child => child.toggle(child.hasClass('complete')))
@@ -158,7 +132,7 @@ export default {
     // return {
     //   elementId: element.getIdForProp(mutatedProp.initialName, 'list'),
     //   method: 'append',
-    //   newValue: mutatedProp.jQuery() + '(' + jQueryArgumentFrom(args[1]) + ')'
+    //   newValue: mutatedProp.jQuery() + '(' + args[1].jQuery() + ')'
     // };
     return result;
   },

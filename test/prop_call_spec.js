@@ -5,6 +5,7 @@
 import expect from 'expect';
 import PropCall from '../src/classes/PropCall';
 import Prop from '../src/classes/Prop';
+import Argument from '../src/classes/Argument'
 
 describe('PropCall', () => {
   const mockParent = { mutableProps: [], callsFromHandler: [], displayName() { return 'MockParent'; } };
@@ -16,7 +17,11 @@ describe('PropCall', () => {
     it('contains reference to Prop and given prop arguments in an array', () => {
       const propCall = functionProp(fakeProp1, fakeProp2, fakeProp2);
       expect(propCall.prop).toBe(functionProp);
-      expect(propCall.args).toEqual([fakeProp1, fakeProp2, fakeProp2]);
+    });
+
+    it('contains array of Arguments as args', () => {
+      const propCall = functionProp(fakeProp1, fakeProp2, fakeProp2);
+      expect(propCall.args.every(arg => arg instanceof Argument)).toBe(true);
     });
 
   describe('initialValue', () => {
@@ -33,6 +38,24 @@ describe('PropCall', () => {
     it('returns true for the result of calling a prop', () => {
       const propCallResult = functionProp(fakeProp1, fakeProp2);
       expect(PropCall.isPropCall(propCallResult)).toBe(true);
+    });
+  });
+
+  describe('concernsProp', () => {
+    const propCall = functionProp(fakeProp1, fakeProp1);
+    it('returns true when passed prop within arguments', () => {
+      expect(propCall.concernsProp(fakeProp1)).toBe(true);
+    });
+
+    it('returns false when passed prop not in arguments', () => {
+      expect(propCall.concernsProp(fakeProp2)).toBe(false)
+    });
+
+    it('returns true when passed prop within sub-arguments', () => {
+      const otherFunctionProp = new Prop(mockParent, 'otherFunc', (a, b) => +a - +b, false);
+      const deepFunctionProp = functionProp(fakeProp1, otherFunctionProp(fakeProp2, fakeProp2));
+
+      expect(deepFunctionProp.concernsProp(fakeProp2)).toBe(true);
     });
   });
 });

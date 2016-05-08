@@ -64,7 +64,7 @@ export default class Prop {
       const propCallArgs = args.filter(a => PropCall.isPropCall(a));
       propCallArgs.forEach(arg => {
         const argIndex = parent.callsFromHandler.lastIndexOf(arg);
-        // parent.callsFromHandler.splice(argIndex, 1);
+        parent.callsFromHandler.splice(argIndex, 1);
       });
 
       return propCall;
@@ -134,8 +134,8 @@ export default class Prop {
 
 // need to get value from presence/absence of element/class, or child content. (conditional stuff.)
 
-  jQuery() {
-    return this.valueSource().jQuery();
+  jQuery(declaredProps = []) {
+    return this.valueSource().jQuery(declaredProps);
   }
 
   initialValue() {
@@ -159,7 +159,11 @@ export default class Prop {
     ];
   }
 
-  propsInvolved() {
+  propsAndPropCallsInvolved() {
     return [ this ]
+  }
+
+  varName() {
+    return `${this.initialName}InitialVal`;
   }
 }

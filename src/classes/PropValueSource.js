@@ -16,7 +16,10 @@ export default class PropValueSource {
     Object.assign(this, { prop, ...findSource(elements, prop) });
   }
 
-  jQuery() {
+  jQuery(declaredProps) {
+    if (~declaredProps.indexOf(this.prop))
+      return this.prop.varName();
+
     const { element, method, argument, equalityCheck } = this;
     const elementId = element.getIdForProp(this.prop);
     const argumentString = typeof argument !== 'undefined' ? JSON.stringify(argument) : '';

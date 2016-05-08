@@ -26,6 +26,11 @@ export default class ConditionalValue {
     return Element.isElement(this.consequent || this.alternate);
   }
 
+  jQuery() {
+    const { test, consequent, alternate } = this;
+    return test.jQuery() + ' ? ' + JSON.stringify(consequent) + ' : ' + JSON.stringify(alternate);
+  }
+
   render(indents) {
     const { test, consequent, alternate } = this;
     if (!Prop.isProp(test) && !PropCall.isPropCall(test))
