@@ -5,22 +5,6 @@ import Prop from './Prop';
 import PropCall from './PropCall';
 import Argument from './Argument';
 
-function dynamicValuesNeedingDeclarations(domActions) {
-  // first, take out aLL PRPOS And ALL PROP CALLS from dynamicValue and args
-  const allArgsAndDynamicValues = domActions.reduce((arr, call) => {
-    const argValuesInCall = (call.args || []).map(arg => arg.value) || [];
-    const dynamicValueInCall = call.dynamicValue || [];
-    return [...argValuesInCall, ...dynamicValueInCall];
-  }, []);
-  const propsAndPropCalls =
-    flatMap(allArgsAndDynamicValues.filter(val => Prop.isProp(val) || PropCall.isPropCall(val)),
-      p => p.propsAndPropCallsInvolved());
-
-  const count = (arr, predicate) => arr.reduce((n, val) => n + predicate(val), 0);
-
-  return uniq(propsAndPropCalls, propsAndPropCalls.filter(p1 => 1 < count(propsAndPropCalls, p2 => p1 === p2)));
-}
-
 export default class ActionCall {
   constructor(actionType, mutatedProp, args) {
     Object.assign(this, { actionType, mutatedProp, args: args.map(arg => new Argument(arg)) });
@@ -28,19 +12,16 @@ export default class ActionCall {
 
   jQuery(targetId) {
     const { mutatedProp } = this;
-    const callsData = this.domActions(targetId);
     // where initial state needs taken into account
-    const allDeclaredValues = dynamicValuesNeedingDeclarations(callsData);
+    const allDeclaredValues = this.repeatedDynamicValues(targetId);
     const propDeclarations = allDeclaredValues.filter(Prop.isProp);
     const propCallDeclarations = allDeclaredValues.filter(PropCall.isPropCall);
 
     return [
-      ...propDeclarations.map(p => `var ${mutatedProp.varName()} = ${p.jQuery()};`),
-      ...propCallDeclarations.map(pC => `var ${pC.varName()} = ${pC.jQuery(propDeclarations)};`),
+      ...propDeclarations.map(p => `${mutatedProp.varName()} = ${p.jQuery()};`),
+      ...propCallDeclarations.map(pC => `${pC.varName()} = ${pC.jQuery(propDeclarations)};`),
       ...this.domActions(targetId).map((effectData) => {
         const { elementId, method, dynamicValue } = effectData;
-        // const args = (effectData.args || []).map(arg => arg.jQuery(propDeclarations, propCallDeclarations, dynamicValue))
-        // const joinedArgs = args ? args.join(', ') : '';
 
         switch (method) {
         case 'text':
@@ -80,13 +61,34 @@ export default class ActionCall {
   }
 
   domActions(targetId) {
-    const { mutatedProp } = this;
-    const element = mutatedProp.parent.element();
+    if (!this._domActions) {
+      const { mutatedProp } = this;
+      const element = mutatedProp.parent.element();
 
-    return flatMap(element.elementNodes(), el =>
-      flatMap(Object.keys(stateChangeEffects), method =>
-        stateChangeEffects[method](this, el, targetId)
-      )
-    );
+      this._domActions = flatMap(element.elementNodes(), el =>
+        flatMap(Object.keys(stateChangeEffects), method =>
+          stateChangeEffects[method](this, el, targetId)
+        )
+      );
+    }
+    return this._domActions;
+  }
+
+  repeatedDynamicValues(targetId) {
+    const allArgsAndDynamicValues = this.domActions(targetId).reduce((arr, call) => {
+      const argValuesInCall = (call.args || []).map(arg => arg.value);
+      const dynamicValueInCall = call.dynamicValue;
+      return [
+        ...(argValuesInCall || []),
+        ...(dynamicValueInCall || []),
+      ];
+    }, []);
+    const propsAndPropCalls =
+      flatMap(allArgsAndDynamicValues.filter(val => Prop.isProp(val) || PropCall.isPropCall(val)),
+        p => p.propsAndPropCallsInvolved());
+
+    const count = (arr, predicate) => arr.reduce((n, val) => n + predicate(val), 0);
+
+    return uniq(propsAndPropCalls, propsAndPropCalls.filter(p1 => 1 < count(propsAndPropCalls, p2 => p1 === p2)));
   }
 }

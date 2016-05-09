@@ -20,33 +20,24 @@ export default class Argument {
   }
 
   jQuery(declaredProps, declaredPropCalls, dependentDynamicValue) {
-    const actionArg = this.value;
-    if (PropCall.isPropCall(dependentDynamicValue))
-      return dependentDynamicValue.jQuery(declaredProps, declaredPropCalls, dependentDynamicValue);
-      // return dependentDynamicValue.prop.initialName;
+    const actualArgument = PropCall.isPropCall(dependentDynamicValue) ? dependentDynamicValue : this.value;
 
-    if (PropCall.isPropCall(actionArg))
-      return actionArg.jQuery(declaredProps, declaredPropCalls, dependentDynamicValue);
-      // return actionArg.prop.initialName;
+    if (actualArgument && typeof actualArgument.jQuery === 'function')
+      return actualArgument.jQuery(declaredProps, declaredPropCalls, dependentDynamicValue);
 
-    if (Event.isEvent(actionArg)
-        || Prop.isProp(actionArg))
-        // || PropCall.isPropCall(actionArg))
-      return actionArg.jQuery();
-
-    if (actionArg && typeof actionArg === 'object') {
-      return '{ ' + transform(actionArg, (result, val, key) => {
+    if (actualArgument && typeof actualArgument === 'object') {
+      return '{ ' + transform(actualArgument, (result, val, key) => {
         result.push(JSON.stringify(key) + ':' + new Argument(val).jQuery(declaredProps, declaredPropCalls, dependentDynamicValue))
       }, []).join(', ') + ' }';
     }
 
-    switch (typeof actionArg) {
+    switch (typeof actualArgument) {
     case 'boolean':
-      return actionArg;
+      return actualArgument;
     case 'function':
-      return actionArg.toString()
+      return actualArgument.toString()
     default:
-      return JSON.stringify(actionArg);
+      return JSON.stringify(actualArgument);
     }
   }
 

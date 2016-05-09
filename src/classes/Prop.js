@@ -29,24 +29,11 @@ export default class Prop {
     });
 
     const el = this.transforms[0].callback(arg, 'key');
-    // task.name
-    // 
-
-    // return subprops.map(sp => new PropValueSource(el.elementNodes(), sp))
-
+    
     return subprops.reduce((hash, subprop) => 
       Object.assign(hash, {
         [subprop.initialName]: new PropValueSource(el.elementNodes(), subprop),
-      }), {})
-
-    // return subprops.reduce((hash, subprop) => 
-    //   Object.defineProperty(hash, subprop.initialName, {
-    //     get: function() {
-    //       return new PropValueSource(el.elementNodes(), subprop)
-    //     }
-    //   }), {});
-
-
+      }), {});
   }
 
   constructor(parent, initialName, value, _wasLoaded = false) {
