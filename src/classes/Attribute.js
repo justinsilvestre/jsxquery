@@ -126,7 +126,10 @@ export default class Attribute {
     if (this.isConditional()) {
       const { test, consequent, alternate } = this.value;
       if (!Prop.isProp(test) && !PropCall.isPropCall(test))
-        return new Attribute(this.name, test ? consequent : alternate);
+        return new Attribute(this.name, test ? consequent : alternate).render();
+
+      if (typeof test.value === 'boolean')
+        return new Attribute(this.name, test.value ? consequent : alternate).render();
 
       const propsWereLoaded = this.value.test.wasLoaded();
 

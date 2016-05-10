@@ -43,7 +43,8 @@ export default class ConditionalValue {
     const propWasLoaded = test.wasLoaded();
     const propIsMutable = test.isMutable();
 
-
+    if (!propIsMutable && typeof test.value === 'boolean')
+      return markupFromValue(test.value ? consequent : alternate, 0, raw);
 
     if (!propWasLoaded && !propIsMutable)
       return (test.initialValue() ? consequent : alternate).markup(indents);
