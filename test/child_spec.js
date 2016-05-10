@@ -24,6 +24,15 @@ describe('Child', () => {
     return new Child(defaultProperties);
   };
 
+  function conditionalTextChildTemplate(propsWereLoaded = true, propsAreMutable = true, raw = false) {
+    const defaultProperties = new ConditionalValue(
+      propTemplate(propsWereLoaded, propsAreMutable),
+      '<span>consequent</span>',
+      '<strong>alternate</strong>'
+    );
+    return new Child(defaultProperties, raw);
+  };
+
   const conditionalChild = conditionalElementChildTemplate();
   const conditionalStringChild = new Child(new ConditionalValue(
     new Prop({ mutableProps: ['thing'] }, 'thing', true, true),
@@ -107,56 +116,71 @@ describe('Child', () => {
       expect(containerChild.render()).toEqual('true');
     });
 
-    it('renders either consequent element or alternate element if test condition is '
-      + 'neither determined at server render time nor part of component\'s mutable state', () => {
-      const staticTest = conditionalElementChildTemplate(false, false);
+    describe('with conditional value', () => {
+      describe('when test condition is neither determined at server render time nor part of component\'s mutable state', () => {
+        it('renders either consequent element or alternate element', () => {
+          const staticElementTest = conditionalElementChildTemplate(false, false);
 
-      expect(staticTest.render()).toEqual(span.markup());
-    });
+          expect(staticElementTest.render()).toEqual(span.markup());
+        });
 
-    it('renders either consequent non-element or alternate non-element using JSTL logic'
-      + ' if test condition is determined at server render time');
+        it('renders the value of a text child without escaping', () => {
+          const staticTextTest = conditionalTextChildTemplate(false, false, false);
+          
+          expect(staticTextTest.render()).toEqual('&lt;span&gt;consequent&lt;/span&gt;');
+        });
 
-    it('renders either consequent element or alternate element using JSTL logic'
-      + ' if test condition is determined at server render time', () => {
-      const jstlTest = conditionalElementChildTemplate(true, false);
-      const markup = jstlTest.render();
+        it('renders the value of a raw text child without escaping', () => {
+          const staticRawTextTest = conditionalTextChildTemplate(false, false, true);
 
-      const choose = '<c:choose>';
-      const when = '<c:when test="${true}">';
-      const otherwise = '<c:otherwise>';
+          expect(staticRawTextTest.render()).toEqual('<span>consequent</span>');
+        });
+      });
 
-      expect(markup).toContain(choose);
-      expect(markup.slice(markup.indexOf(choose))).toContain('when');
-      expect(markup.slice(markup.indexOf(when))).toContain('otherwise', jstlTest.value.consequent.markup());
-      expect(markup.slice(markup.indexOf(otherwise))).toContain(jstlTest.value.alternate.markup());
-    });
+      describe('when test condition is determined at server render time', () => {
+        it('renders either consequent element or alternate element using JSTL logic', () => {
+          const jstlTest = conditionalElementChildTemplate(true, false);
+          const markup = jstlTest.render();
 
-    it('shows either consequent element or alternate element using display styles while rendering both'
-      + ' if test condition is part of component\'s mutable state', () => {
-      const child = conditionalElementChildTemplate(false, true);
+          const choose = '<c:choose>';
+          const when = '<c:when test="${true}">';
+          const otherwise = '<c:otherwise>';
 
-      expect(child.render()).toContain('strong style="display: none');
-    });
+          expect(markup).toContain(choose);
+          expect(markup.slice(markup.indexOf(choose))).toContain('when');
+          expect(markup.slice(markup.indexOf(when))).toContain('otherwise', jstlTest.value.consequent.markup());
+          expect(markup.slice(markup.indexOf(otherwise))).toContain(jstlTest.value.alternate.markup());
+        });
+      });
 
-    it('shows either consequent element or alternate element using display styles determined using JSTL logic '
-      + 'if test condition is both determined at server render time '
+      describe('when test condition is part of component\'s mutable state', () => {
+        it('shows either consequent element or alternate element using display styles while rendering both', () => {
+          const child = conditionalElementChildTemplate(false, true);
+
+          expect(child.render()).toContain('strong style="display: none');
+        });
+      });
+
+      describe('when test condition is both determined at server render time '
       + 'and part of component\'s mutable state', () => {
-      const child = conditionalElementChildTemplate(true, true);
+        it('shows either consequent element or alternate element using display styles determined using JSTL logic', () => {
+          const child = conditionalElementChildTemplate(true, true);
 
-      expect(child.render()).toContain('strong ${true ? "style=\\"display: none;\\"" : ""}');
-      expect(child.render()).toContain('span ${true ? "" : "style=\\"display: none;\\""}');
-    });
+          expect(child.render()).toContain('strong ${true ? "style=\\"display: none;\\"" : ""}');
+          expect(child.render()).toContain('span ${true ? "" : "style=\\"display: none;\\""}');
+        });
+      });
 
-    it('accepts function component as consequent', () => {
-      const FunctionComponent = () => span;
+      it('accepts function component as consequent', () => {
+        const FunctionComponent = () => span;
 
-      const conditionalComponentChild = new Child(
-        new ConditionalValue(propTemplate(false, false),
-        <FunctionComponent />,
-        <span id="alternate">this is the alternate</span>
-      ));
-      expect(conditionalComponentChild.render()).toEqual(span.markup());
+        const conditionalComponentChild = new Child(
+          new ConditionalValue(propTemplate(false, false),
+          <FunctionComponent />,
+          <span id="alternate">this is the alternate</span>
+        ));
+        expect(conditionalComponentChild.render()).toEqual(span.markup());
+      });
     });
 
     it('renders each element when value is an array', () => {
@@ -166,5 +190,6 @@ describe('Child', () => {
         expect(arrayChild.render()).toContain(e.markup());
       });
     });
+
   });
 });

@@ -3,23 +3,25 @@ import PropCall from './PropCall';
 import ConditionalValue from './ConditionalValue';
 import Chainable from './Chainable';
 import Element from './Element';
-import { escape } from 'lodash';
+import { escape, identity } from 'lodash';
 
-function markupFromValue(value, indents) {
+function markupFromValue(value, indents, raw = false) {
+  const escapeOrNot = raw ? identity : escape;
+
   if (Chainable.isChainable(value))
-    return escape('${' + value.initialValue() + '}')
+    return escapeOrNot('${' + value.initialValue() + '}')
 
   if (Element.isElement(value))
     return value.markup(indents);
 
   if (PropCall.isPropCall(value) || Prop.isProp(value))
-    return escape(value.initialValue());
+    return escapeOrNot(value.initialValue());
 
-  return escape(value);
+  return escapeOrNot(value);
 
   return Element.isElement(value)
     ? value.markup(indents)
-    : (Prop.isProp(value) || PropCall.isPropCall(value)) ? value.initialValue() : escape(value);
+    : (Prop.isProp(value) || PropCall.isPropCall(value)) ? value.initialValue() : escapeOrNot(value);
 }
 
 const isDynamicValue = val => Prop.isProp(val)
@@ -73,29 +75,16 @@ export default class Child {
   isRaw() {
     return this._isRaw || false;
   }
-
-  renderRaw() {
-    if (this.isDynamicText())
-      return this.value.initialValue();
-
-    return this.value;
-  }
-
   render(indents) {
-    if (this._isRaw)
-      return this.renderRaw(indents);
+    const raw = this._isRaw;
 
     if (this.arrayValue())
       return this.arrayValue().map(e => e.markup(indents)).join('\n');
 
     if (this.isConditional())
-      return this.value.render(indents);
+      return this.value.render(indents, raw);
 
-    if (this.isDynamicText()) {
-      return markupFromValue(this.value, indents);
-    }
-
-    return markupFromValue(this.value, indents);
+    return markupFromValue(this.value, indents, raw);
   }
 
   elementNodes() {

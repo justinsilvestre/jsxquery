@@ -2,13 +2,14 @@ import Prop from './Prop';
 import PropCall from './PropCall';
 import Attribute from './Attribute';
 import Element from './Element';
-import { escape } from 'lodash';
+import { escape, identity } from 'lodash';
 import { cChoose } from '../jstlHelpers';
 
-function markupFromValue(value, indents) {
+function markupFromValue(value, indents, raw) {
+  const escapeOrNot = raw ? identity : escape;
   return Element.isElement(value)
     ? value.markup(indents)
-    : escape((Prop.isProp(value) || PropCall.isPropCall(value)) ? value.initialValue() : value);
+    : escapeOrNot((Prop.isProp(value) || PropCall.isPropCall(value)) ? value.initialValue() : value);
 }
 
 export default class ConditionalValue {
@@ -31,13 +32,13 @@ export default class ConditionalValue {
     return test.jQuery() + ' ? ' + JSON.stringify(consequent) + ' : ' + JSON.stringify(alternate);
   }
 
-  render(indents) {
+  render(indents, raw) {
     const { test, consequent, alternate } = this;
     if (!Prop.isProp(test) && !PropCall.isPropCall(test))
-      return markupFromValue(test ? consequent : alternate);
+      return markupFromValue(test ? consequent : alternate, 0, raw);
 
     if (!Element.isElement(consequent || alternate)) // we are not dealing with Elements.
-      return markupFromValue(test.initialValue() ? consequent : alternate);
+      return markupFromValue(test.initialValue() ? consequent : alternate, 0, raw);
 
     const propWasLoaded = test.wasLoaded();
     const propIsMutable = test.isMutable();
