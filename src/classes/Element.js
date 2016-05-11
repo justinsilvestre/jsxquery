@@ -1,4 +1,4 @@
-import { isEmpty, contains, isFunction, intersection } from 'lodash';
+import { isEmpty, contains, unescape, intersection } from 'lodash';
 import flatMap from 'lodash.flatmap';
 import pickBy from 'lodash.pickby';
 import Child from './Child';
@@ -87,9 +87,10 @@ export default class Element {
     const lineBreak = indents === null || this.isInline() ? '' : '\n' + '\t'.repeat(indents);
     const innerIndent = indents !== null && childrenAreShowing && contains(childrenMarkup, '\n') ? '\t' : '';
 
-    return lineBreak + (!this.isVoid() ?
+    const markupWithEscapedJSTLExpressions = lineBreak + (!this.isVoid() ?
         `<${tagName}${formattedAttributes}>${lineBreak + innerIndent + childrenMarkup + lineBreak}</${tagName}>`
         : `<${tagName}${formattedAttributes} />`) + lineBreak.repeat(2);
+    return markupWithEscapedJSTLExpressions.replace(/\$\{.+\}/g, unescape);
   }
 
   isInline() {
