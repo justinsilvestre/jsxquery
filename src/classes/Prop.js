@@ -29,7 +29,7 @@ export default class Prop {
     });
 
     const el = this.transforms[0].callback(arg, 'key');
-    
+
     return subprops.reduce((hash, subprop) => 
       Object.assign(hash, {
         [subprop.initialName]: new PropValueSource(el.elementNodes(), subprop),
@@ -133,7 +133,7 @@ export default class Prop {
     if (!this.transforms)
       throw new Error(`Prop ${this.initialName} is not transformed in this place.`)
 
-    if (!this.wasLoaded())
+    if (!this.wasLoaded() || Array.isArray(this.value))
       return this.value.map(this.transforms[0].callback);
 
     const loopVar = this.initialName + 'Item';
