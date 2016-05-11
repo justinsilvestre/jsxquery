@@ -147,5 +147,10 @@ export default class Component {
 
 export function createClass(extensions) {
   class NewComponent extends Component {}
-  return Object.assign(NewComponent.prototype, extensions);
+  Object.assign(NewComponent.prototype, extensions);
+  if (extensions.getDefaultProps)
+    Object.defineProperty(NewComponent, 'defaultProps', { get: extensions.getDefaultProps });
+  if (extensions.getActionNames)
+    Object.defineProperty(NewComponent, 'actionNames', { get: extensions.getActionNames });
+  return NewComponent;
 }
