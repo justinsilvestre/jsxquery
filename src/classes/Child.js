@@ -14,6 +14,9 @@ function markupFromValue(value, indents, raw = false) {
   if (Element.isElement(value))
     return value.markup(indents);
 
+  if (Prop.isProp(value) && Element.isElement(value.initialValue()))
+    return value.initialValue().markup(indents);
+
   if (PropCall.isPropCall(value) || Prop.isProp(value))
     return escapeOrNot(value.initialValue());
 
