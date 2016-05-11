@@ -7,6 +7,9 @@ import EventListener from './EventListener';
 import * as EVENTS from '../supportedEvents';
 import { INLINE_ELEMENTS, VOID_ELEMENTS } from '../htmlElementData';
 const EVENT_NAMES = Object.keys(EVENTS);
+import Prop from './Prop'
+import PropCall from './PropCall'
+import ConditionalValue from './ConditionalValue'
 
 function buildComponent(ComponentConstructor, props) {
   var component;
@@ -33,8 +36,10 @@ export default class Element {
   constructor(tagName, propsOrAttributes, ...children) {
     const ComponentConstructor = typeof tagName === 'string' ? null : tagName;
     if (ComponentConstructor) {
-      if (!isFunction(ComponentConstructor))
+      if (typeof ComponentConstructor !== 'function'){
+        console.log(ComponentConstructor)
         throw new Error('Your component must either be a function returning an Element or a Component class');
+      }
       this.component = buildComponent(ComponentConstructor, propsOrAttributes);
     }
 
@@ -60,11 +65,15 @@ export default class Element {
       || (rawTextChildValue && [new Child(rawTextChildValue, true)])
       || (isEmpty(children) ? [] : children.map(child => new Child(child)));
 
-    const dynamicTextContentChild = this.children.some(child => child.isDynamicText());
+    const dyn = this.children.find(child => child.isDynamicText());
+    const mutableDynamicTextContent = ( (Prop.isProp(dyn)
+                                          || PropCall.isPropCall(dyn)) && dyn.isMutable() )
+                                      || (ConditionalValue.isConditionalValue(dyn) && dyn.test.isMutable())
+
     // const idAttribute = this.getAttribute('id');
-    if (dynamicTextContentChild)
+    if (mutableDynamicTextContent)
       this.getIdBecause('with dynamic text content');
-    if (dynamicTextContentChild && this.children.length > 1)
+    if (mutableDynamicTextContent && this.children.length > 1)
       throw new Error(`Your <${this.tagName}> element has dynamic text content not wrapped in its own element`);
     // if (dynamicTextContentChild && !idAttribute)
     //   throw new Error(`Your <${this.tagName}> element with dynamic text content has no id attribute.`);
@@ -136,8 +145,6 @@ export default class Element {
   }
 
   eventListeners() {
-    this.getIdBecause('returned by render()');
-
     var listeners = [];
     this.each((element) => {
       const usedEventsNames = isEmpty(element.attributes)
