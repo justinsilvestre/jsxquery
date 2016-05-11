@@ -66,9 +66,10 @@ export default class Element {
       || (isEmpty(children) ? [] : children.map(child => new Child(child)));
 
     const dyn = this.children.find(child => child.isDynamicText());
-    const mutableDynamicTextContent = ( (Prop.isProp(dyn)
-                                          || PropCall.isPropCall(dyn)) && dyn.isMutable() )
-                                      || (ConditionalValue.isConditionalValue(dyn) && dyn.test.isMutable())
+    const dynv = dyn && dyn.value
+    const mutableDynamicTextContent = ( (Prop.isProp(dynv)
+                                          || PropCall.isPropCall(dynv)) && dynv.isMutable() )
+                                      || (ConditionalValue.isConditionalValue(dynv) && dynv.test.isMutable())
 
     // const idAttribute = this.getAttribute('id');
     if (mutableDynamicTextContent)

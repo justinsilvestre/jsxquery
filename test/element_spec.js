@@ -6,9 +6,10 @@ import Prop from '../src/classes/Prop';
 describe('Element', () => {
   it('throws an error when a child with dynamic content has siblings but no containing element', () => {
     class FreeDynamicChild extends Component {
-      static get defaultProps() { return { apropos: 'true' }; }
+      static get defaultProps() { return { apropos: 'hi there' }; }
+      static get actionNames() { return ['setApropos']; };
       render() {
-        return <div id="whatevs">{this.props.apropos}hi there</div>;
+        return <div id="whatevs" onClick={() => this.actions.setApropos('hey')}>{this.props.apropos}hi there</div>;
       }
     }
 
@@ -20,8 +21,9 @@ describe('Element', () => {
   it('throws an error when a child with conditional text has siblings but no containing element', () => {
     class FreeConditionalTextChild extends Component {
       static get defaultProps() { return { apropos: 'true' }; }
+      static get actionNames() { return ['setApropos']; };
       render() {
-        return <div id="whatevs">{this.props.apropos ? 'woop' : 'dedoop'} <span>hi there</span></div>;
+        return <div id="whatevs" onClick={() => this.actions.setApropos('hey')}>{this.props.apropos ? 'woop' : 'dedoop'} <span>hi there</span></div>;
       }
     }
     expect(() => createElement(FreeConditionalTextChild, null)).toThrow(
