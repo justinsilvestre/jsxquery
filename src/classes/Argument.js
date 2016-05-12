@@ -19,25 +19,25 @@ export default class Argument {
     return value;
   }
 
-  jQuery(declaredProps, declaredPropCalls, dependentDynamicValue) {
-    const actualArgument = PropCall.isPropCall(dependentDynamicValue) ? dependentDynamicValue : this.value;
+  jQuery(declaredProps, declaredPropCalls) {
+    const { value } = this;
 
-    if (actualArgument && typeof actualArgument.jQuery === 'function')
-      return actualArgument.jQuery(declaredProps, declaredPropCalls, dependentDynamicValue);
+    if (value && typeof value.jQuery === 'function')
+      return value.jQuery(declaredProps, declaredPropCalls);
 
-    if (actualArgument && typeof actualArgument === 'object') {
-      return '{ ' + transform(actualArgument, (result, val, key) => {
-        result.push(JSON.stringify(key) + ':' + new Argument(val).jQuery(declaredProps, declaredPropCalls, dependentDynamicValue))
+    if (value && typeof value === 'object') {
+      return '{ ' + transform(value, (result, val, key) => {
+        result.push(JSON.stringify(key) + ':' + new Argument(val).jQuery(declaredProps, declaredPropCalls))
       }, []).join(', ') + ' }';
     }
 
-    switch (typeof actualArgument) {
+    switch (typeof value) {
     case 'boolean':
-      return actualArgument;
+      return value;
     case 'function':
-      return actualArgument.toString()
+      return value.toString()
     default:
-      return JSON.stringify(actualArgument);
+      return JSON.stringify(value);
     }
   }
 

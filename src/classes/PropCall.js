@@ -61,6 +61,9 @@ export default class PropCall {
   }
 
   propsAndPropCallsInvolved() {
-    return [this, ...flatMap(this.args, v => v.value.propsAndPropCallsInvolved())];
+    return [this, ...flatMap(
+      this.args.filter(arg => Prop.isProp(arg.value) || PropCall.isPropCall(arg.value)),
+      arg => arg.value.propsAndPropCallsInvolved()
+    )];
   }
 }

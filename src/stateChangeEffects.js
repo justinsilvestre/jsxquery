@@ -19,7 +19,6 @@ export default {
       arr.concat({
         elementId: element.getIdForProp(mutatedProp.initialName, `dynamic class '${name}'`),
         method,
-        dynamicValue: relevantClassNames[name],
         args: [new Argument(name)].concat(secondArg),
       }), []);
   },
@@ -32,8 +31,7 @@ export default {
     return dynamicTextChildren.map(c => ({
       elementId: element.getIdForProp(mutatedProp.initialName, 'dynamic content'),
       method: c.isRaw() ? 'html' : 'text',
-      dynamicValue: c.value,
-      args: [args[0]],
+      args: [PropCall.isPropCall(c.value) ? new Argument(c.value) : args[0]],
     }));
   },
 
@@ -47,8 +45,7 @@ export default {
     return [consequent, alternate].filter(o => Element.isElement(o)).map(el => ({
       elementId: el.getIdForProp(mutatedProp.initialName, 'display styles'),
       method: el === consequent ? 'show' : 'hide',
-      dynamicValue: test,
-      args: [args[0]],
+      args: [PropCall.isPropCall(test) ? new Argument(test) : args[0]],
     }));
   },
 
@@ -64,8 +61,9 @@ export default {
     return {
       elementId: element.getIdForProp(mutatedProp.initialName, 'conditional text'),
       method: relevantConditionalChild.isRaw() ? 'html' : 'text',
-      args: [new Argument(args[0].value ? consequent : alternate)],
-      dynamicValue: test,
+      args: [PropCall.isPropCall(test) ? new Argument(test)
+        : (new Argument(args[0].value ? consequent : alternate)),
+      ],
     };
   },
 
@@ -77,10 +75,10 @@ export default {
       && {
         elementId: element.getIdForProp(mutatedProp.initialName, 'value attribute'),
         method: 'val',
-        dynamicValue: valueAttribute.value,
-        args: [args[0]],
+        args: [PropCall.isPropCall(valueAttribute.value) ? new Argument(valueAttribute.value) : args[0]],
       };
-    return v && v.elementId !== targetId ? v : [];
+      return v || [];
+    // return v && v.elementId !== targetId ? v : [];
   },
 
   attributes({ mutatedProp, args }, element) {
@@ -90,8 +88,7 @@ export default {
       arr.concat({
         elementId: element.getIdForProp(mutatedProp.initialName, 'dynamic attribute'),
         method: attribute.jQueryMethod(),
-        dynamicValue: attribute.value,
-        args: [new Argument(attribute.name), args[0]],
+        args: [new Argument(attribute.name), PropCall.isPropCall(attribute.value) ? new Argument(attribute.value) : args[0]],
       })
     , []);
   },
@@ -120,7 +117,6 @@ export default {
         method: 'append',
         transformIndex: mappedList.value.parent.templates.indexOf(mappedList.value.transforms[0].callback),
         newValue: args[0].jQuery(),
-        // dynamicValue: args[0],
         args: [args[0]],
       });
     }

@@ -119,10 +119,11 @@ export default class Component {
   }
 
   get mutableProps() {
-    return uniq(this.constructor.actionNames.map(name => {
-      this.element().getIdBecause('returned by render()');
+    const props = uniq(this.constructor.actionNames.map(name => {
       return this.actions[name][1]
     }));
+    // this.element().getIdBecause('returned by render()');
+    return props;
   }
 
   propValuesWithSources() {
