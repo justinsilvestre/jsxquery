@@ -56,7 +56,7 @@ describe('Prop', () => {
     });
 
     it('uses JSTL logic to iterate over prop value when loaded', () => {
-      const arrayValue = ['a','b','c','d'];
+      const arrayValue = "['a','b','c','d']";
       const loadedListProp = new Prop(mockParent, 'loadedListProp', arrayValue, true);
       const wrapWithSpan = val => <span id="boop">{val}</span>;
 

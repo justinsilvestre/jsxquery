@@ -12,7 +12,7 @@ describe('Child', () => {
   const span = <span>one</span>;
   const strong = <strong>two</strong>;
   function propTemplate(propsWereLoaded = true, propsAreMutable = true) {
-    return new Prop({ mutableProps: [propsAreMutable ? 'thing' : 'notThing'] }, 'thing', true, propsWereLoaded);
+    return new Prop({ mutableProps: [propsAreMutable ? 'thing' : 'notThing'] }, 'thing', 'someValue', propsWereLoaded);
   }
 
   function conditionalElementChildTemplate(propsWereLoaded = true, propsAreMutable = true) {
@@ -109,7 +109,7 @@ describe('Child', () => {
 
     it('renders the raw value of a raw container child', () => {
       const rawPropChild = new Child(propTemplate(false, false), true);
-      expect(rawPropChild.render()).toEqual(true)
+      expect(rawPropChild.render()).toEqual('someValue')
     });
 
     it('returns value of container child converted to string', () => {
@@ -143,7 +143,7 @@ describe('Child', () => {
           const markup = jstlTest.render();
 
           const choose = '<c:choose>';
-          const when = '<c:when test="${true}">';
+          const when = '<c:when test="${someValue}">';
           const otherwise = '<c:otherwise>';
 
           expect(markup).toContain(choose);
@@ -166,8 +166,8 @@ describe('Child', () => {
         it('shows either consequent element or alternate element using display styles determined using JSTL logic', () => {
           const child = conditionalElementChildTemplate(true, true);
 
-          expect(child.render()).toContain('strong ${true ? "style=\\"display: none;\\"" : ""}');
-          expect(child.render()).toContain('span ${true ? "" : "style=\\"display: none;\\""}');
+          expect(child.render()).toContain('strong ${someValue ? "style=\\"display: none;\\"" : ""}');
+          expect(child.render()).toContain('span ${someValue ? "" : "style=\\"display: none;\\""}');
         });
       });
 
