@@ -40,7 +40,7 @@ export default class Child {
       throw new Error('When providing an array as Element child, each value in the array must be an Element');
 
     this._isConditional = ConditionalValue.isConditionalValue(value);
-    if (this._isConditional){
+    if (this._isConditional && this.value.test.isMutable && this.value.test.isMutable()){
       if (isDynamicValue(value.consequent || value.alternate))
         throw new Error('Dynamic content in result of conditional expression must be wrapped in an Element');
       const { consequent, alternate } = value;
