@@ -36,10 +36,9 @@ export default class Element {
   constructor(tagName, propsOrAttributes, ...children) {
     const ComponentConstructor = typeof tagName === 'string' ? null : tagName;
     if (ComponentConstructor) {
-      if (typeof ComponentConstructor !== 'function'){
-        console.log(ComponentConstructor)
+      if (typeof ComponentConstructor !== 'function')
         throw new Error('Your component must either be a function returning an Element or a Component class');
-      }
+
       this.component = buildComponent(ComponentConstructor, propsOrAttributes);
     }
 
