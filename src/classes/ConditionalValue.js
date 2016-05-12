@@ -37,8 +37,8 @@ export default class ConditionalValue {
     if (!Prop.isProp(test) && !PropCall.isPropCall(test))
       return markupFromValue(test ? consequent : alternate, 0, raw);
 
-    if (!Element.isElement(consequent || alternate)) // we are not dealing with Elements.
-      return markupFromValue(test.initialValue() ? consequent : alternate, 0, raw);
+    // if (!Element.isElement(consequent || alternate)) // we are not dealing with Elements.
+    //   return markupFromValue(test.initialValue() ? consequent : alternate, 0, raw);
 
     const propWasLoaded = test.wasLoaded();
     const propIsMutable = test.isMutable();
@@ -47,10 +47,10 @@ export default class ConditionalValue {
       return markupFromValue(test.value ? consequent : alternate, 0, raw);
 
     if (!propWasLoaded && !propIsMutable)
-      return (test.initialValue() ? consequent : alternate).markup(indents);
+      return markupFromValue(test.initialValue() ? consequent : alternate, indents, raw);
 
     if (propWasLoaded && !propIsMutable)
-      return cChoose(test.initialValue(), consequent, alternate).markup(indents);
+      return markupFromValue(cChoose(test.initialValue(), consequent, alternate, raw), indents, true);
 
     const maybeHiddenOption = (option, hiddenIfTestTrue = false) => {
       const newElement = option.clone();

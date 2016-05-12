@@ -151,6 +151,18 @@ describe('Child', () => {
           expect(markup.slice(markup.indexOf(when))).toContain('otherwise', jstlTest.value.consequent.markup());
           expect(markup.slice(markup.indexOf(otherwise))).toContain(jstlTest.value.alternate.markup());
         });
+
+        it('renders either consequent text or alternate text using JSTL logic', () => {
+          const jstlTextTest = conditionalTextChildTemplate(true, false, false);
+
+          expect(jstlTextTest.render()).toEqual('${someValue ? "&lt;span&gt;consequent&lt;/span&gt;" : "&lt;strong&gt;alternate&lt;/strong&gt;"}');
+        });
+
+        it('renders either raw consequent text or raw alternate text using JSTL logic', () => {
+          const jstlTextTest = conditionalTextChildTemplate(true, false, true);
+
+          expect(jstlTextTest.render()).toEqual('${someValue ? "<span>consequent</span>" : "<strong>alternate</strong>"}');
+        });
       });
 
       describe('when test condition is part of component\'s mutable state', () => {
