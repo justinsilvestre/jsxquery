@@ -1,8 +1,8 @@
 import { contains, isFunction } from 'lodash';
 import PropCall from './PropCall';
 import Chainable from './Chainable';
-import { createElement } from './Element';
-const jsxQuery = { createElement };
+import Element, { createElement } from './Element';
+// const jsxQuery = { createElement };
 import Proxy from 'harmony-proxy';
 import PropValueSource from './PropValueSource';
 function isValidComponent(val) {
@@ -126,7 +126,8 @@ export default class Prop {
   }
 
   initialValue() {
-    return this.value;
+    const { value } = this;
+    return Element.isElement(value) ? value.markup(0).replace(/\n/g, '') : value;
   }
 
   transformed() {

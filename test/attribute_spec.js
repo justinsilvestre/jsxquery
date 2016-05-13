@@ -1,7 +1,7 @@
 import expect from 'expect';
 import Attribute from '../src/classes/Attribute';
 import Prop from '../src/classes/Prop';
-import { classNames } from '../src/jsxQuery';
+import { classNames, createElement } from '../src/jsxQuery';
 
 describe('Attribute', () => {
   const stringAttribute = new Attribute('href', 'http://google.com');
@@ -134,6 +134,21 @@ describe('Attribute', () => {
       const containerAttribute = new Attribute('thisIsFromComponentsLoadedProps', new Prop({ mutableProps: [] }, 'thisIsAPropName', 'thisIsAPropValue', true));
 
       expect(containerAttribute.render()).toEqual(' thisIsFromComponentsLoadedProps="thisIsAPropValue"');
+    });
+
+    it('renders markup for Element value', () => {
+      const element =  createElement('c:out', { val: '${something}'})
+      const elementAttribute = new Attribute('data-some-attr', element)
+    
+      expect(elementAttribute.render()).toEqual(' data-some-attr="<c:out val="${something}" />"')
+    });
+
+    it('renders markup for Prop with Element value', () => {
+      const element = createElement('c:out', { val: '${something}'});
+      const prop = new Prop({ mutableProps: [] }, 'thisIsAPropName', element, true)
+      const elementPropAttribute = new Attribute('data-some-attr', prop);
+
+      expect(elementPropAttribute.render()).toEqual(' data-some-attr="<c:out val="${something}" />"')
     });
   });
 });

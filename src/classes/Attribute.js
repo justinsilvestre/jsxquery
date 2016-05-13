@@ -4,6 +4,7 @@ import { cChoose } from '../jstlHelpers';
 import Prop from './Prop';
 import PropCall from './PropCall';
 import ConditionalValue from './ConditionalValue';
+import Element from './Element';
 import ATTRIBUTES_TO_TREAT_WITH_PROP_METHOD from '../htmlElementData';
 import Chainable from './Chainable'
 
@@ -119,7 +120,7 @@ export default class Attribute {
     if (this.value === false)
       return '';
 
-    return this.value;
+    return Element.isElement(this.value) ? this.value.markup(0).replace(/\n/g, '') : this.value;
   }
 
   render() {
