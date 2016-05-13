@@ -21,7 +21,7 @@ export default class PropValueSource {
       return this.prop.varName();
 
     const { element, method, argument, equalityCheck } = this;
-    const elementId = element.getIdForProp(this.prop);
+    const elementId = element.getIdForProp(this.prop.initialName, 'data');
     const argumentString = typeof argument !== 'undefined' ? JSON.stringify(argument) : '';
     return `$(${elementId}).${method}(${argumentString})${equalityCheck || ''}`;
   }
@@ -29,7 +29,7 @@ export default class PropValueSource {
   scopedJQuery(scope) {
     const { element, method, argument, equalityCheck } = this;
 
-    const elementId = element.getIdForProp(this.prop);
+    const elementId = element.getIdForProp(this.prop.initialName, 'data');
     const argumentString = typeof argument !== 'undefined' ? JSON.stringify(argument) : '';
     return `$(${scope}).find(${elementId}).addBack(${scope}).${method}(${argumentString})${equalityCheck || ''}`;
   }
