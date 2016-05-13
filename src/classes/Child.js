@@ -63,11 +63,11 @@ export default class Child {
     if (Array.isArray(this.value))
       return this.value;
 
-    if (Prop.isProp(this.value) && Array.isArray(this.value.value))
-      return this.value.value;
-
     if (Prop.isProp(this.value) && Array.isArray(this.value.transforms && this.value.transformed()))
       return this.value.transformed();
+
+    if (Prop.isProp(this.value) && Array.isArray(this.value.value))
+      return this.value.value;
   }
 
   isConditional() {
