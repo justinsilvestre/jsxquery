@@ -13,6 +13,6 @@ export default {
     // definitely need to make stuff work with both createElement
     // calls and babel'd createElement calls. plus ternary calls.
     transformConditionalExpressions,
-    require('babel-plugin-transform-es2015-modules-commonjs'),
+    [require('babel-plugin-transform-es2015-modules-commonjs-simple').default, { noMangle: true }],
   ],
 };

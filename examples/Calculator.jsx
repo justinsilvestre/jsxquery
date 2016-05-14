@@ -1,4 +1,5 @@
-// import jsxQuery, { Component } from '../jsxquery';
+import jsxQuery, { Component } from '../src/jsxquery';
+/*** END IMPORT STATEMENTS ***/
 
 export default class Calculator extends Component {
   static get defaultProps() {

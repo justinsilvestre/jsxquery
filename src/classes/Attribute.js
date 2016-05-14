@@ -1,6 +1,5 @@
 import { kebabCase, contains, isFunction } from 'lodash';
 import EVENTS from '../supportedEvents';
-import { cChoose } from '../jstlHelpers';
 import Prop from './Prop';
 import PropCall from './PropCall';
 import ConditionalValue from './ConditionalValue';
@@ -112,7 +111,9 @@ export default class Attribute {
     }
 
     if (this.isContainer()) 
-      return this.value.initialValue();
+      return Element.isElement(this.value.initialValue())
+        ? this.value.initialValue().markup(0).replace(/\n/g, '')
+        : this.value.initialValue();
 
     if (this.isConditional())
       return this.value.render(null);

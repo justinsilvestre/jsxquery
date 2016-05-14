@@ -60,7 +60,7 @@ export default class Component {
       //
       //
     }).join(',\n') + '\n};'
-    + '\nObject.assign(module.exports, propMethods);\n';
+    + '\nObject.assign(module.exports, { propMethods: propMethods });\n';
 
     const templateMethodStrings = this.templates.map(t => t.toString()).join(',\n');
     const templateMethodsChunk = `var templates = [${templateMethodStrings}].map((fn) => (...args) => fn(...args).render());\n\n`;

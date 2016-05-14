@@ -1,10 +1,5 @@
-// import jsxQuery, { Component, classNames, createElement } from '../src/jsxquery';
-// const jsxQuery = require('jsxquery');
-// const { Component, classNames } = jsxQuery;
-// import React, { Component } from 'react';
-// import classNames from 'classnames';
-// import * as domManipulationActions from './domManipulationActions';
-// import { bindAll } from './domManipulationActions';
+import jsxQuery, { Component, classNames } from '../src/jsxquery';
+/*** END IMPORT STATEMENTS ***/
 
 export default class DomManipulationExample extends Component {
   static get defaultProps() {
@@ -73,7 +68,7 @@ export default class DomManipulationExample extends Component {
 
     const container2 = (
       <div id="container2">
-        <button id="dom-manipulation-side-effect" onClick={() => sideEffect('But we should treat them with care.')} >Side effects are necessary, in the end.</button>
+        <button id="side-effect" onClick={() => sideEffect('But we should treat them with care.')} >Side effects are necessary, in the end.</button>
         <br /><br />
         <button id="hello-button" onClick={() => showContainer1()}>Hello</button>
       </div>

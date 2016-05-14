@@ -1,6 +1,7 @@
-// import jsxQuery, { Component } from '../jsxquery';
-// import $ from 'jquery';
-// import _ from 'lodash';
+import jsxQuery, { Component } from '../jsrc/sxquery';
+import $ from 'jquery';
+import _ from 'lodash';
+/*** END IMPORT STATEMENTS ***/
 
 const propNameFor = (fieldName) => _.camelCase(fieldName + 'Text');
 const setXActionFor = (fieldName) => _.camelCase('set-' + propNameFor(fieldName));

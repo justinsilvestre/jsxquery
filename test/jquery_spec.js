@@ -3,7 +3,7 @@ import expect from 'expect';
 import { transform } from 'babel-core';
 import DomManipulationExample from '../examples/DomManipulation.jsx';
 import { prepareTransform, codeAtNodes, normalizeWhitespace, calleeName } from '../src/babelTraverseHelpers';
-import * as jsxQuery from '../src/jsxquery';
+import jsxQuery from '../src/jsxquery';
 
 var window;
 var expectedScript;
@@ -18,18 +18,21 @@ const handlerRegex = eventType => new RegExp("\\S+\\.on\\('" + eventType + "'\\,
 const handlersInActualScript = eventType => actualScript.match(handlerRegex(eventType));
 
 before(() => {
-  jsdom.env('test/expectedJQuery.html', [], (er, w) => {
-    if (!('document' in w))
-      throw new Error('jsdom had a problem. Run the test suite again.');
+  jsdom.env({
+    html: require('fs').readFileSync('test/expectedJQuery.html'),
+    done: (er, w) => {
+      if (!('document' in w))
+        throw new Error('jsdom had a problem. Run the test suite again.');
 
-    window = w;
-    expectedScript = prepareTransform(
-      window.document.getElementById('dom-manipulation-script').innerHTML
-    );
+      window = w;
+      expectedScript = prepareTransform(
+        window.document.getElementById('dom-manipulation-script').innerHTML
+      );
+    }
   });
 });
 
-describe('jQuery DOM manipulation code generation', () => {
+describe('jQuery Dcode generation', () => {
   it('generates jQuery toggleClass call from TOGGLE action on prop in className attribute', () => {
     const clickHandler = handlersInExpectedScript('click')[0];
     // expect(actualScript.match(/\S+\.on\('click'\, function.+?\}\); /)).toContain(clickHandler);

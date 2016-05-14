@@ -1,18 +1,11 @@
 import { contains, isFunction } from 'lodash';
 import PropCall from './PropCall';
 import Chainable from './Chainable';
-import Element, { createElement } from './Element';
-// const jsxQuery = { createElement };
+import { createElement } from './Element';
 import Proxy from 'harmony-proxy';
 import PropValueSource from './PropValueSource';
 function isValidComponent(val) {
   return 'mutableProps' in val; // maybe shoudl test from callsfromhandler?
-}
-
-function loopObj(start) {
-  const obj = { initialValue: () => '${' + chain.join('.') + '}' };
-
-  return new Chainable(obj, start)
 }
 
 export default class Prop {
@@ -21,7 +14,7 @@ export default class Prop {
     var subprops = [];
     const arg = new Proxy({}, {
       get(target, name) {
-        const subprop = new Prop(that.parent, name, 'dummyValue', that.wasLoaded())
+        const subprop = new Prop(that.parent, name, 'dummyValue', that.wasLoaded());
         subprops.push(subprop);
 
         return subprop;
@@ -59,7 +52,7 @@ export default class Prop {
 
     var prop = isFunction(value) ? Object.setPrototypeOf(functionProp, Prop.prototype) : this;
 
-    return Object.assign(prop, { parent, initialName, value, _wasLoaded })
+    return Object.assign(prop, { parent, initialName, value, _wasLoaded });
   }
 
   static isProp(val) {
@@ -92,7 +85,7 @@ export default class Prop {
       // extract: this.subpropSources(),
     });
 
-    this.parent.templates.push(callback)
+    this.parent.templates.push(callback);
     const listPropWithTransform = Object.assign(new Prop(parent, initialName, value, _wasLoaded), { transforms });
     this.parent.extractionProcedures.push(this.subpropSources.bind(listPropWithTransform))
     return listPropWithTransform;
@@ -118,7 +111,6 @@ export default class Prop {
       || (PropCall.isPropCall(value) && value.concernsProp(this));
   }
 
-
 // need to get value from presence/absence of element/class, or child content. (conditional stuff.)
 
   jQuery(declaredProps = []) {
@@ -126,13 +118,12 @@ export default class Prop {
   }
 
   initialValue() {
-    const { value } = this;
-    return Element.isElement(value) ? value.markup(0).replace(/\n/g, '') : value;
+    return this.value;
   }
 
   transformed() {
     if (!this.transforms)
-      throw new Error(`Prop ${this.initialName} is not transformed in this place.`)
+      throw new Error(`Prop ${this.initialName} is not transformed in this place.`);
 
     if (!this.wasLoaded() || Array.isArray(this.value))
       return this.value.map(this.transforms[0].callback);
@@ -140,15 +131,14 @@ export default class Prop {
     const loopVar = this.initialName + 'Item';
     const varStatus = this.transforms[0].callback.length > 1 ? this.initialName + 'Index' : false;
     const content = this.transforms[0].callback(new Chainable(loopVar), new Chainable(varStatus).loop);
-    return [
-      <c:forEach var={loopVar} items={this.value} varStatus={varStatus}>
-        {content}
-      </c:forEach>
-    ];
+    return [createElement('c:forEach', { var: loopVar, items: this.value, varStatus }, content)];
+      // <c:forEach var={loopVar} items={this.value} varStatus={varStatus}>
+      //   {content}
+      // </c:forEach>
   }
 
   propsAndPropCallsInvolved() {
-    return [ this ]
+    return [ this ];
   }
 
   varName() {

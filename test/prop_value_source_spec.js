@@ -125,22 +125,25 @@ describe('Prop.prototype.valueSource()', () => {
   describe('when test condition is the first instance of the prop', () => {
     it('returns visibility state of consequent element in conditional value', () => {
       const sourceForConditionalElementProp = conditionalElementProp.valueSource();
-      const { method, argument } = sourceForConditionalElementProp;
+      const { method, argument, equalityCheck } = sourceForConditionalElementProp;
 
       expect(sourceForConditionalElementProp.element.getAttribute('id').displayValue()).toEqual('consequent');
-      expect(method).toEqual('is');
-      expect(argument).toEqual(':visible');
+      expect(method).toEqual('css');
+      expect(argument).toEqual('display');
+      expect(equalityCheck).toEqual("!== 'none'");
     });
 
     it('returns hidden state of alternate element if consequent is absent', () => {
       const sourceForConditionalElementNoConsequentProp = conditionalElementNoConsequentProp.valueSource();
+      const { method, argument, equalityCheck } = sourceForConditionalElementNoConsequentProp;
 
       expect(
         sourceForConditionalElementNoConsequentProp.element.getAttribute('id').displayValue()
         ).toEqual('lone-alternate');
-      expect(sourceForConditionalElementNoConsequentProp.method).toEqual('is');
-      expect(sourceForConditionalElementNoConsequentProp.argument).toEqual(':hidden');
-    });
+      expect(method).toEqual('css');
+      expect(argument).toEqual('display');
+      expect(equalityCheck).toEqual("=== 'none'");
+  });
 
     it('checks conditional text against potential value', () => {
       const sourceForConditionalTextProp = conditionalTextProp.valueSource();

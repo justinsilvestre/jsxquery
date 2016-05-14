@@ -54,8 +54,9 @@ export default {
     const { consequent, alternate } = conditionalElementChild.value;
     return Element.isElement(consequent || alternate) && {
       element: consequent || alternate,
-      method: 'is',
-      argument: consequent ? ':visible' : ':hidden',
+      method: 'css',
+      argument: 'display',
+      equalityCheck: (consequent ? '!' : '=') + "== 'none'",
     };
   },
 
