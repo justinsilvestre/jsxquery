@@ -1,6 +1,6 @@
 {
   "name": "jsxquery",
-  "version": "0.0.5",
+  "version": "0.0.6",
   "description": "Build UI components with declarative code that compiles to HTML/JSTL and jQuery",
   "engines": {
     "node": "5.x"
