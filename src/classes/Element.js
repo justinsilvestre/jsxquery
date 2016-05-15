@@ -1,4 +1,4 @@
-import { isEmpty, contains, unescape, intersection } from 'lodash';
+import { isEmpty, unescape, intersection } from 'lodash';
 import flatMap from 'lodash.flatmap';
 import pickBy from 'lodash.pickby';
 import Child from './Child';
@@ -16,7 +16,7 @@ function buildComponent(ComponentConstructor, props) {
   try {
     component = new ComponentConstructor(props);
   } catch (err) {
-    if (!contains(err.message, 'is not a constructor'))
+    if (!err.message.match('is not a constructor'))
       throw err;
     component = { element: () => ComponentConstructor.call(null, props) };
   }
@@ -82,23 +82,26 @@ export default class Element {
   markup(indents = 0) {
     const { tagName } = this;
     const formattedAttributes = this.formattedAttributes();
-    const childrenMarkup = this.childrenMarkup(indents === null ? null : indents + 1);
-    const childrenAreShowing = this.childrenMarkup.length > 0;
-    const lineBreak = indents === null || this.isInline() ? '' : '\n' + '\t'.repeat(indents);
-    const innerIndent = indents !== null && childrenAreShowing && contains(childrenMarkup, '\n') ? '\t' : '';
+    const childrenMarkup = this.childrenMarkup(indents + 1);
 
-    const markupWithEscapedJSTLExpressions = lineBreak + (!this.isVoid() ?
-        `<${tagName}${formattedAttributes}>${lineBreak + innerIndent + childrenMarkup + lineBreak}</${tagName}>`
-        : `<${tagName}${formattedAttributes} />`) + lineBreak.repeat(2);
+    const start = '\t'.repeat(indents);
+    const childrenStart = '';
+    const childrenEnd = childrenMarkup[childrenMarkup.length - 1] !== '\n' ? '' : '\t'.repeat(indents);
+    const content = childrenStart + childrenMarkup + childrenEnd;
+    const end = this.isInline() ? '' : '\n';
+    const markupWithEscapedJSTLExpressions = this.isVoid()
+      ? `<${tagName}${formattedAttributes} />`
+      : start + `<${tagName}${formattedAttributes}>` + content + `</${tagName}>` + end;
+
     return markupWithEscapedJSTLExpressions.replace(/\$\{.+\}/g, unescape);
   }
 
   isInline() {
-    return contains(INLINE_ELEMENTS, this.tagName);
+    return INLINE_ELEMENTS.includes(this.tagName);
   }
 
   isVoid() {
-    return contains(VOID_ELEMENTS, this.tagName);
+    return VOID_ELEMENTS.includes(this.tagName);
   }
 
   formattedAttributes() {
@@ -112,7 +115,12 @@ export default class Element {
   childrenMarkup(indents) {
     if (!this._childrenMarkup) {
       const { children } = this;
-      this._childrenMarkup = children ? children.map(child => child.render(indents)).join('') : '';
+      this._childrenMarkup = children
+        ? children.map(child => child.render(indents))
+          .reduce((sofar, childMarkup) =>
+            sofar + (childMarkup.charAt(0) === '\t' ? '\n' : '') + childMarkup
+          , '')
+        : '';
     }
     return this._childrenMarkup;
   }
