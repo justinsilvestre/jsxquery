@@ -4,7 +4,7 @@ import Prop from './Prop';
 import PropCall from './PropCall';
 import ConditionalValue from './ConditionalValue';
 import Element from './Element';
-import ATTRIBUTES_TO_TREAT_WITH_PROP_METHOD from '../htmlElementData';
+import { ATTRIBUTES_TO_TREAT_WITH_PROP_METHOD } from '../htmlElementData';
 import Chainable from './Chainable'
 
 const NAME_ALIAS_MAP = { className: 'class', htmlFor: 'for' };
