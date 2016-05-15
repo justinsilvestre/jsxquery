@@ -115,12 +115,14 @@ export default class Element {
   childrenMarkup(indents) {
     if (!this._childrenMarkup) {
       const { children } = this;
-      this._childrenMarkup = children
+      const markup = children
         ? children.map(child => child.render(indents))
           .reduce((sofar, childMarkup) =>
             sofar + (childMarkup.charAt(0) === '\t' ? '\n' : '') + childMarkup
           , '')
         : '';
+      const endWhitespace = (markup[markup.length - 1] !== '\n' && markup[0] === '\n') ? '\n' : '';
+      this._childrenMarkup = markup + endWhitespace;
     }
     return this._childrenMarkup;
   }
