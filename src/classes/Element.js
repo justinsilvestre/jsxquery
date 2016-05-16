@@ -1,4 +1,4 @@
-import { isEmpty, unescape, intersection } from 'lodash';
+import { isEmpty, unescape, intersection, contains } from 'lodash';
 import flatMap from 'lodash.flatmap';
 import pickBy from 'lodash.pickby';
 import Child from './Child';
@@ -97,11 +97,11 @@ export default class Element {
   }
 
   isInline() {
-    return INLINE_ELEMENTS.includes(this.tagName);
+    return contains(INLINE_ELEMENTS, this.tagName);
   }
 
   isVoid() {
-    return VOID_ELEMENTS.includes(this.tagName);
+    return contains(VOID_ELEMENTS, this.tagName);
   }
 
   formattedAttributes() {

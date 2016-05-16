@@ -1,7 +1,7 @@
 import Prop from './Prop';
-import Event from './Event';
 import Argument from './Argument';
 import flatMap from 'lodash.flatmap';
+import { contains } from 'lodash';
 
 export default class PropCall {
   constructor(functionProp, args) {
@@ -15,7 +15,7 @@ export default class PropCall {
   }
 
   jQuery(declaredProps = [], declaredPropCalls = []) {
-    if (declaredPropCalls.includes(this))
+    if (contains(declaredPropCalls, this))
       return this.varName();
 
     return this.jQueryCall(declaredProps, declaredPropCalls);
