@@ -25,7 +25,7 @@ The end result is an ordinary JSP file like you're used to.
 
 Since the end result is the same as writing raw JSTL, all the debugging skills your team has acquired during their past experience with JSPs are still applicable. But with all back-end logic cleanly separated out from the view logic, a new possibility opens up for you. Just take a file with your back-end logic and **swap it out for some test data**, and you can see what your page would look like with that data, **without even running a server or a database**. You can create as much test data as you like, so you can see what your page would look like under all sorts of different conditions. **No more clicking around**, filling out forms, and waiting for them to process over and over--just write some test data once, plug it in, and re-render your page as needed.
 
-You can test your changes right in the browser by creating an HTML file, or you can set up automated tests like in this demo. In any case, as a front-end developer, you can **stop being blocked by unrelated back-end issues**, as long as you know the page and the page state relevant to whatever feature/bug you're working on. 
+You can test your changes right in the browser by creating an HTML file, or you can set up automated tests like in [this demo](https://github.com/justinsilvestre/jsxquery-demo). In any case, as a front-end developer, you can **stop being blocked by unrelated back-end issues**, as long as you know the page and the page state relevant to whatever feature/bug you're working on. 
 
 ### Conventions your team already knows
 
@@ -45,4 +45,7 @@ The jsxQuery component API mirrors a small subset of Facebook's [React](https://
 
 jsxQuery started as an experiment in automating the process of keeping markup and jQuery code in sync. You can see those features at work (at least the o nes that have been completed) at `index.html` in this repo.
 
+## In-depth Walkthrough
+
+If you want to learn more details, checkout this [walkthrough](https://justinsilvestre.gitbooks.io/unit-testing-in-atg/content/) and the accompanying [repo](https://github.com/justinsilvestre/jsxquery-demo) complete with example unit tests.
 
