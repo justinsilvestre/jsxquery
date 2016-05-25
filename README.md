@@ -39,7 +39,7 @@ You don't have to overhaul your entire UI architecture to start using jsxQuery c
 
 ### Training wheels for other component-based UI architectures
 
-The jsxQuery component API mirrors a small subset of Facebook's [React](https://facebook.github.io/react/). React is at the forefront of a large movement in the JavaScript community centered on component-based UIs. That means learning how to write a jsxQuery component will leave you with skills that are also applicable in [Angular 2](https://angular.io/), [Polymer](https://www.polymer-project.org/1.0/), [vue.js](https://vuejs.org/), and even iOS/Android develeopment with [React Native](https://facebook.github.io/react-native/).
+The jsxQuery component API mirrors a small subset of Facebook's [React](https://facebook.github.io/react/). React is at the forefront of a large movement in the JavaScript community centered on component-based UIs. That means learning how to write a jsxQuery component will leave you with skills that are also applicable in [Angular 2](https://angular.io/), [Polymer](https://www.polymer-project.org/1.0/), [vue.js](https://vuejs.org/), and even iOS/Android development with [React Native](https://facebook.github.io/react-native/).
 
 ### Experimental features
 
