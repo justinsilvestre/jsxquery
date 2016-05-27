@@ -1,6 +1,6 @@
 # jsxQuery
 
-Save time maintaining and testing your JSP code by keeping things organized in small, manageable **components**. A component-based architecture makes it easy to write **automated tests** for your UI code, opening the door to [TDD](http://agiledata.org/essays/tdd.html). This could mean [40-90% fewer bugs](http:/f/research.microsoft.com/en-us/groups/ese/nagappan_tdd.pdf) by the end of your project.
+Save time maintaining and testing your JSP code by keeping things organized in small, manageable **components**. A component-based architecture makes it easy to write **automated tests** for your UI code, opening the door to [TDD](http://agiledata.org/essays/tdd.html). This could mean [40-90% fewer bugs](http://research.microsoft.com/en-us/groups/ese/nagappan_tdd.pdf) by the end of your project.
 
 ### How does it work?
 
